@@ -1,29 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { GithubIcon, TwitterXIcon, LinkedinIcon } from "@/components/SocialIcons";
 
-const featuredWork = [
-  {
-    title: "AI-Powered Analytics Dashboard",
-    description:
-      "A real-time analytics platform serving 50K+ daily active users, built with Next.js, TypeScript, and a custom data pipeline.",
-    tags: ["Next.js", "TypeScript", "PostgreSQL", "AI/ML"],
-    href: "/work/analytics-dashboard",
-  },
-  {
-    title: "Open-Source Design System",
-    description:
-      "A fully accessible component library with 60+ components, dark mode support, and auto-generated documentation.",
-    tags: ["React", "Tailwind CSS", "Storybook", "a11y"],
-    href: "/work/design-system",
-  },
-  {
-    title: "Developer Productivity CLI",
-    description:
-      "A command-line tool that automates repetitive dev tasks, saving teams an average of 3 hours per week.",
-    tags: ["Node.js", "TypeScript", "CLI", "Open Source"],
-    href: "/work/dev-cli",
-  },
+const proofPoints = [
+  "22 years enterprise delivery across IBM · Infosys · GfK · Teradata · NCR · Wipro · Birlasoft",
+  "Hybrid AI agent system — 7 specialist agents running under €30/month",
+  "German citizen building GDPR-compliant AI for EU regulatory workflows",
 ];
 
 const featuredPosts = [
@@ -52,29 +34,36 @@ export default function HomePage() {
     <div className="max-w-5xl mx-auto px-6 py-20">
       {/* Hero Section */}
       <section className="min-h-[70vh] flex flex-col justify-center">
-        {/* Pill badge */}
+        {/* Location badge */}
         <div
           className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border mb-8 w-fit"
           style={{ borderColor: "var(--border)", color: "var(--muted)", background: "var(--card)" }}
         >
-          <Sparkles size={12} className="text-violet-400" />
-          Open to new opportunities
+          <MapPin size={12} className="text-violet-400" />
+          Building in Public · Nürnberg, Germany
         </div>
 
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-6">
-          Hi, I&apos;m{" "}
-          <span className="gradient-text">Updesh</span>
-          <br />
-          <span style={{ color: "var(--muted)" }} className="font-light">
-            I build things for the web.
-          </span>
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-4">
+          <span className="gradient-text">Updesh Shrivastava</span>
         </h1>
 
-        <p className="text-lg max-w-2xl leading-relaxed mb-10" style={{ color: "var(--muted)" }}>
-          Software engineer passionate about crafting performant, accessible, and beautiful
-          digital experiences. I write about engineering, design systems, and the craft of
-          building software that lasts.
+        <p className="text-xl sm:text-2xl font-semibold mb-3" style={{ color: "var(--foreground)" }}>
+          Building AI agent systems that run what I used to manage manually
         </p>
+
+        <p className="text-base font-medium mb-10" style={{ color: "var(--muted)" }}>
+          Senior PM · AI Systems Builder · 22 years enterprise delivery
+        </p>
+
+        {/* Proof points */}
+        <ul className="flex flex-col gap-3 mb-10">
+          {proofPoints.map((point, i) => (
+            <li key={i} className="flex items-start gap-3 text-sm" style={{ color: "var(--muted)" }}>
+              <span className="mt-1 shrink-0 w-1.5 h-1.5 rounded-full gradient-bg" />
+              {point}
+            </li>
+          ))}
+        </ul>
 
         <div className="flex flex-wrap items-center gap-4">
           <Link
@@ -128,7 +117,29 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-4">
-          {featuredWork.map((project, i) => (
+          {[
+            {
+              title: "Hybrid AI Agent System",
+              description:
+                "7 specialist agents orchestrated to replace manual PM workflows — procurement, compliance, reporting — running under €30/month on commodity cloud infrastructure.",
+              tags: ["AI Agents", "LLM", "GDPR", "EU Compliance"],
+              href: "/work",
+            },
+            {
+              title: "EU Regulatory Workflow Automation",
+              description:
+                "GDPR-compliant document processing pipeline built for German enterprise. Reduced manual review time by automating extraction, classification, and audit trail generation.",
+              tags: ["Automation", "Compliance", "NLP", "Enterprise"],
+              href: "/work",
+            },
+            {
+              title: "Enterprise Programme Delivery — GfK / Teradata",
+              description:
+                "Led cross-functional delivery of analytics platform migrations across 12 markets. 22 years of enterprise PM discipline distilled into repeatable AI-assisted delivery frameworks.",
+              tags: ["Programme Management", "Analytics", "Multi-market", "Transformation"],
+              href: "/work",
+            },
+          ].map((project, i) => (
             <Link
               key={i}
               href={project.href}
