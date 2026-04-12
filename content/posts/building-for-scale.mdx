@@ -1,0 +1,99 @@
+---
+title: "Building for Scale: Lessons from 10M Requests/Day"
+date: "2025-02-14"
+excerpt: "Hard-won lessons from scaling a Node.js API from zero to 10 million requests per day without rewriting everything."
+tags: ["Backend", "Scale", "Node.js", "Architecture"]
+readTime: "12 min read"
+---
+
+When our product went viral in late 2023, our API went from handling a few thousand requests per day to over 10 million — in about two weeks. We didn't rewrite it. We didn't switch languages. We survived, and here's what we learned.
+
+## The First Crisis: Connection Pool Exhaustion
+
+The first sign of trouble wasn't slow responses — it was `ECONNREFUSED` errors. Our PostgreSQL connection pool was exhausted. We had naively set `max: 10` connections because it seemed like enough.
+
+The fix was immediate but nuanced:
+
+```javascript
+const pool = new Pool({
+  max: 50,              // Match to your DB instance's max_connections
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 2000,
+});
+```
+
+But this only pushed the problem to the database. The real lesson: **your connection pool size should reflect your database's capacity, not your optimism**.
+
+## Caching as a First-Class Citizen
+
+Our most expensive queries were also our most repeated ones. We added Redis caching not as an afterthought, but as a deliberate layer.
+
+The key insight was **cache at the right level**. We were tempted to cache at the HTTP layer (easy wins), but the biggest gains came from caching expensive database aggregations:
+
+```typescript
+async function getUserStats(userId: string) {
+  const cacheKey = `user:stats:${userId}`;
+  const cached = await redis.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  const stats = await db.computeUserStats(userId); // expensive
+  await redis.setex(cacheKey, 300, JSON.stringify(stats)); // 5 min TTL
+  return stats;
+}
+```
+
+Cache invalidation is the hard part. We chose **TTL-based expiry** for stats and **event-driven invalidation** for user data, keeping complexity manageable.
+
+## Async Everything
+
+The biggest architectural shift was moving from synchronous request handlers to async-first design. Instead of making the request wait for email sending, audit logging, or analytics events — we enqueue them.
+
+We used BullMQ (backed by Redis) for job queues:
+
+```typescript
+// Before — blocking the request
+router.post("/signup", async (req, res) => {
+  const user = await createUser(req.body);
+  await sendWelcomeEmail(user); // blocks for 200ms
+  await logAuditEvent(user);    // blocks for 50ms
+  res.json(user);
+});
+
+// After — non-blocking
+router.post("/signup", async (req, res) => {
+  const user = await createUser(req.body);
+  await emailQueue.add("welcome", { userId: user.id });
+  await auditQueue.add("signup", { userId: user.id });
+  res.json(user); // responds in ~20ms
+});
+```
+
+P95 latency on `/signup` dropped from 400ms to 45ms.
+
+## Read Replicas and Query Optimization
+
+At scale, your read-heavy endpoints will dominate your database load. We added a read replica and routed all non-transactional queries to it:
+
+```typescript
+const writeDb = createPool(process.env.DB_PRIMARY_URL);
+const readDb = createPool(process.env.DB_REPLICA_URL);
+
+// Use readDb for queries that don't need fresh data
+const posts = await readDb.query("SELECT * FROM posts WHERE ...");
+```
+
+We also started taking query plans seriously. `EXPLAIN ANALYZE` became part of our code review process for any new query. Missing indexes are invisible in development but devastating at scale.
+
+## What We'd Do Differently
+
+Looking back, the main things I'd change:
+
+1. **Instrument earlier.** We added tracing (OpenTelemetry) reactively. It should have been there from day one.
+2. **Load test before launch.** A single afternoon with k6 would have revealed the connection pool issue before users did.
+3. **Design for idempotency.** At scale, retries happen. Every mutating operation should be idempotent.
+
+## The Boring Truth
+
+Scaling isn't about clever distributed systems tricks. It's mostly about: proper indexing, connection pooling, caching the right things, and not doing work synchronously that can be done asynchronously. The fundamentals matter more than you think.
+
+Start boring. Measure. Then optimize.

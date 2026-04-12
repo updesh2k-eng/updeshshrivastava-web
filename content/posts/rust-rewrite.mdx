@@ -1,0 +1,89 @@
+---
+title: "Why I Rewrote My Side Project in Rust"
+date: "2025-01-05"
+excerpt: "A practical account of rewriting a Node.js CLI tool in Rust — what I gained, what surprised me, and whether it was worth it."
+tags: ["Rust", "Node.js", "CLI", "Performance"]
+readTime: "9 min read"
+---
+
+I rewrote my developer CLI tool from Node.js to Rust. Startup time went from 340ms to 4ms. Bundle size went from 45MB to 3.2MB. This is the story of why I did it, what the experience was like, and whether I'd recommend it.
+
+## The Problem with Node.js for CLI Tools
+
+My CLI tool — a developer workflow automation utility — worked perfectly fine. Users liked it. But there was one thing that always bothered me: it took **340 milliseconds to start**.
+
+That doesn't sound like much. But a CLI tool that runs hundreds of times a day with 340ms of overhead adds up to minutes of waiting. And more frustratingly, 90% of that time was Node.js module loading, not actual work.
+
+I tried lazy loading, bundling with esbuild, and various other tricks. I got it down to 180ms. Still not great.
+
+## Why Rust?
+
+I considered several options:
+- **Go** — great startup time, simpler, but I was curious about Rust
+- **Deno** — still V8, still slow startup
+- **Bun** — faster, but still JavaScript runtime overhead
+- **Rust** — steep learning curve, but near-instant startup and excellent CLI ecosystem
+
+I chose Rust because I wanted to learn it properly, and a real project is the best teacher.
+
+## The Rewrite Experience
+
+### What Surprised Me (Good)
+
+**The compiler is your pair programmer.** Rust's error messages are famously good, but experiencing them first-hand is different. I can't count how many bugs I would have shipped in Node.js that Rust simply refused to compile.
+
+**The ecosystem for CLIs is excellent.** `clap` for argument parsing, `indicatif` for progress bars, `dialoguer` for interactive prompts, `colored` for terminal colors — everything I needed existed and was well-maintained.
+
+**Once it compiles, it usually works.** This sounds like a cliché but it's true. The property that Rust programs either don't compile or usually work correctly is genuinely valuable.
+
+```rust
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "devtool", version, about)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Initialize a new project
+    Init {
+        #[arg(short, long)]
+        template: Option<String>,
+    },
+    /// Run a workflow
+    Run {
+        workflow: String,
+    },
+}
+```
+
+### What Surprised Me (Hard)
+
+**String handling.** In Node.js, strings are strings. In Rust, there are `String`, `&str`, `OsString`, `PathBuf`, and more. Learning when to use which took time.
+
+**Async Rust.** I had hoped to avoid async entirely in a CLI tool, but some operations (HTTP calls, file I/O in parallel) needed it. The async story in Rust is powerful but adds complexity.
+
+**The borrow checker fights you on the first real program.** Not because it's wrong, but because it's enforcing invariants your brain hasn't wired up yet. Push through — it gets much more intuitive.
+
+## The Results
+
+| Metric | Node.js | Rust | Improvement |
+|--------|---------|------|-------------|
+| Cold startup | 340ms | 4ms | **85x faster** |
+| Binary size | 45MB | 3.2MB | **14x smaller** |
+| Memory usage | ~80MB | ~4MB | **20x less** |
+
+Users noticed immediately. The most common piece of feedback: "it just feels snappy."
+
+## Would I Recommend It?
+
+For a CLI tool: **yes, if you have the time to learn Rust properly.** The performance wins are real and user-visible. The learning curve is real too, but the skills transfer everywhere.
+
+For a web backend: **probably not yet** (unless performance is critical). The ecosystem is maturing but the iteration speed is slower than Node.js/Go.
+
+The most important thing I learned: Rust forces you to think about ownership, lifetimes, and error handling explicitly — concepts that exist in every language but are usually implicit. Writing Rust made me a better Node.js engineer too, because I started thinking more carefully about memory and correctness in everything I wrote.
+
+That's probably worth the pain of fighting the borrow checker for a few weeks.
