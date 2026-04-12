@@ -1,167 +1,233 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Work",
-  description: "Case studies and projects by Updesh Shrivastava.",
+  description:
+    "Real systems solving real problems. AI agent infrastructure, PropTech automation, and investment systems — documented honestly.",
 };
 
-const projects = [
+type StatusVariant = "amber" | "blue" | "green";
+
+const statusStyles: Record<StatusVariant, React.CSSProperties> = {
+  amber: {
+    background: "rgba(245,158,11,0.1)",
+    color: "#d97706",
+    border: "1px solid rgba(245,158,11,0.25)",
+  },
+  blue: {
+    background: "rgba(14,165,233,0.1)",
+    color: "#0ea5e9",
+    border: "1px solid rgba(14,165,233,0.25)",
+  },
+  green: {
+    background: "rgba(34,197,94,0.1)",
+    color: "#16a34a",
+    border: "1px solid rgba(34,197,94,0.25)",
+  },
+};
+
+interface CaseStudy {
+  title: string;
+  status: string;
+  statusVariant: StatusVariant;
+  category: string;
+  problem: string;
+  approach: string | React.ReactNode;
+  result: string;
+  stack: string[];
+}
+
+const caseStudies: CaseStudy[] = [
   {
-    id: "analytics-dashboard",
-    title: "AI-Powered Analytics Dashboard",
-    tagline: "Real-time insights at scale",
-    description:
-      "Designed and built a real-time analytics platform serving 50,000+ daily active users. Integrated an AI layer for anomaly detection and trend forecasting, reducing time-to-insight by 60%.",
-    tags: ["Next.js", "TypeScript", "PostgreSQL", "AI/ML", "Redis"],
-    year: "2024",
-    highlights: [
-      "50K+ daily active users",
-      "60% faster time-to-insight",
-      "99.9% uptime SLA",
+    title: "AI Command Center",
+    status: "In Development",
+    statusVariant: "amber",
+    category: "Personal Automation · AI Infrastructure",
+    problem:
+      "Property income and expenses across multiple units. WEG statements. Bills, receipts, and documents across dozens of categories. Eight years of self-filing complete German tax returns. All of it important. All of it repetitive. All of it eating my weekends.",
+    approach: `Hybrid architecture — local Ollama models running on-device for privacy-sensitive document processing, Claude API reserved for tasks requiring genuine reasoning. Seven specialist agents governed by a machine-readable Constitution that enforces a hard monthly budget cap and privacy rules.
+
+Seven agents:
+· Supervisor Orchestrator — routes tasks, enforces Constitution, tracks spend
+· Tax Consultant — German tax law, Finanzamt documents, Elster filing
+· Financial Planner — portfolio tracking, ETF rebalancing, P&L reports
+· File Manager (The Librarian) — document classification, Google Drive organisation
+· Health Agent — reimbursement claims, health document management
+· Innovation Agent — AI news digest, research, idea capture
+· Business Operations Agent — invoice management, scheduling, client documents
+
+Routing logic: Sensitive documents processed locally via Apple Vision OCR — raw files never leave the device. Only anonymised values reach the cloud API. Cost governance enforced in real time.`,
+    result:
+      "60–70% of tasks handled locally at zero cost. Total monthly AI infrastructure targeting under €30. GDPR compliant by design. System runs autonomously — agents operate without user intervention.",
+    stack: [
+      "Mac Mini M4 Pro (24GB)",
+      "Ollama",
+      "Qwen3 14B",
+      "Gemma 3 12B",
+      "Claude Haiku",
+      "Claude Sonnet",
+      "Python",
+      "Supabase",
+      "Apple Vision OCR",
+      "Hetzner VPS Frankfurt",
+      "Google Drive API",
     ],
-    href: "/work/analytics-dashboard",
   },
   {
-    id: "design-system",
-    title: "Open-Source Design System",
-    tagline: "60+ components, zero compromise on accessibility",
-    description:
-      "Created a fully accessible, theme-aware component library used by 3 internal teams and 200+ GitHub stars. Includes auto-generated Storybook docs and design token exports.",
-    tags: ["React", "Tailwind CSS", "Storybook", "Radix UI", "a11y"],
-    year: "2023",
-    highlights: [
-      "60+ production-ready components",
-      "WCAG 2.1 AA compliant",
-      "200+ GitHub stars",
+    title: "PropTech Platform",
+    status: "Active Development",
+    statusVariant: "blue",
+    category: "Property Management · Web Application",
+    problem:
+      "Property management across multiple units involves repetitive document-heavy workflows — Mietverträge, WEG statements, utility bills, maintenance records, rental income tracking. All managed manually. All taking time that compounds across multiple properties.",
+    approach:
+      "Custom web application with AI document processing pipeline. Automated intake via a drop-zone folder — documents are classified, data extracted, and filed automatically. German property document types handled natively including Mietverträge, Betriebskostenabrechnungen, and WEG Protokolle. Foundation architected for commercial scale from day one.",
+    result:
+      "Platform in active development. Automated document intake pipeline operational. Architecture designed to scale from personal use to commercial PropTech product.",
+    stack: [
+      "Next.js",
+      "Supabase",
+      "Vercel",
+      "Claude API",
+      "GitHub CI/CD",
+      "Python",
+      "Apple Vision OCR",
     ],
-    href: "/work/design-system",
   },
   {
-    id: "dev-cli",
-    title: "Developer Productivity CLI",
-    tagline: "Automate the boring parts",
-    description:
-      "Open-source CLI tool that streamlines repetitive developer workflows — scaffolding, code generation, git automation, and environment management. 3 hours saved per developer per week.",
-    tags: ["Node.js", "TypeScript", "CLI", "Open Source", "Shell"],
-    year: "2023",
-    highlights: [
-      "3 hrs/week saved per dev",
-      "1,000+ installs on npm",
-      "15+ automated workflows",
+    title: "AI Trading System",
+    status: "Paper Trading Live",
+    statusVariant: "green",
+    category: "Investment Automation · Financial AI",
+    problem:
+      "Investment portfolio monitored manually. No systematic rebalancing. No real-time monitoring of EU and US market positions. No automated response to news, fund flows, or technical signals.",
+    approach: `Automated trading system connected to Interactive Brokers Pro API. Three automation layers:
+· Rule-based layer — systematic execution of rebalancing, stop-loss, position limits. Zero AI tokens. Runs 24/7.
+· Signal layer — Claude analyses technicals, news sentiment, institutional fund flows. Generates buy/sell signals.
+· Autonomous layer — Claude Desktop with IBKR MCP for on-demand natural language execution.
+
+Infrastructure on Hetzner Frankfurt VPS for 24/7 uptime and stable IP. Multi-currency account holds EUR and USD natively — EU trades execute directly in EUR with no forced conversion.`,
+    result:
+      "Paper trading live on IBKR Pro. 60-day validation period before real capital deployment. Full data pipeline connected: Finnhub news sentiment, FRED macro data, ECB rates, SEC EDGAR 13F institutional flows.",
+    stack: [
+      "Python",
+      "Interactive Brokers API",
+      "IBKR MCP",
+      "Hetzner VPS Frankfurt",
+      "Supabase",
+      "Claude API",
+      "Finnhub API",
+      "FRED API",
+      "ECB API",
     ],
-    href: "/work/dev-cli",
-  },
-  {
-    id: "ecommerce-platform",
-    title: "E-Commerce Platform Overhaul",
-    tagline: "Performance-first redesign",
-    description:
-      "Led the frontend migration of a legacy e-commerce platform to Next.js App Router. Improved Core Web Vitals scores by 45% and conversion rate by 12% through performance optimizations.",
-    tags: ["Next.js", "React", "Tailwind CSS", "Shopify", "Performance"],
-    year: "2022",
-    highlights: [
-      "45% better Core Web Vitals",
-      "12% conversion increase",
-      "Legacy → App Router migration",
-    ],
-    href: "/work/ecommerce-platform",
-  },
-  {
-    id: "fintech-api",
-    title: "Fintech Payment Microservice",
-    tagline: "High-throughput, fault-tolerant payments",
-    description:
-      "Architected a payment processing microservice handling $2M+ daily transaction volume. Built with event sourcing, idempotency guarantees, and full audit trail.",
-    tags: ["Node.js", "Kafka", "PostgreSQL", "AWS", "Microservices"],
-    year: "2022",
-    highlights: [
-      "$2M+ daily transactions",
-      "Zero downtime deploys",
-      "Full audit trail",
-    ],
-    href: "/work/fintech-api",
   },
 ];
 
+function PreformattedText({ text }: { text: string }) {
+  return (
+    <div className="text-sm leading-relaxed whitespace-pre-line" style={{ color: "var(--muted)" }}>
+      {text}
+    </div>
+  );
+}
+
 export default function WorkPage() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-20">
+    <div className="max-w-3xl mx-auto px-6 py-20">
       {/* Header */}
       <section className="mb-16">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-          Selected <span className="gradient-text">Work</span>
+          What I <span className="gradient-text">Build</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
-        <p className="text-base max-w-xl leading-relaxed" style={{ color: "var(--muted)" }}>
-          A curated collection of projects I&apos;ve built or contributed to. Each represents
-          a meaningful engineering challenge and a story worth telling.
+        <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
+          Real systems solving real problems. Each project documented honestly — what worked,
+          what failed, what it actually costs to run.
         </p>
       </section>
 
-      {/* Projects grid */}
-      <div className="grid gap-6">
-        {projects.map((project) => (
+      {/* Case Studies */}
+      <div className="flex flex-col gap-12">
+        {caseStudies.map((cs, i) => (
           <article
-            key={project.id}
-            className="group relative rounded-2xl border overflow-hidden transition-all duration-300 hover:border-violet-500/50"
-            style={{ background: "var(--card)", borderColor: "var(--border)" }}
+            key={i}
+            className="rounded-2xl border overflow-hidden"
+            style={{ borderColor: "var(--border)", background: "var(--card)" }}
           >
-            <div className="p-7">
-              {/* Top row */}
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-widest gradient-text">
-                    {project.year}
-                  </span>
-                  <h2 className="text-xl font-bold mt-1">{project.title}</h2>
-                  <p className="text-sm font-medium mt-0.5" style={{ color: "var(--muted)" }}>
-                    {project.tagline}
-                  </p>
-                </div>
-                <Link
-                  href={project.href}
-                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full border opacity-0 group-hover:opacity-100 transition-all duration-200 hover:gradient-bg hover:border-transparent hover:text-white"
-                  style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-                  aria-label={`View ${project.title}`}
+            {/* Card header */}
+            <div className="p-7 border-b" style={{ borderColor: "var(--border)" }}>
+              <div className="flex flex-wrap items-start gap-3 mb-3">
+                <span
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                  style={statusStyles[cs.statusVariant]}
                 >
-                  <ArrowUpRight size={16} />
-                </Link>
+                  {cs.status}
+                </span>
+                <span className="text-xs" style={{ color: "var(--muted)" }}>
+                  {cs.category}
+                </span>
+              </div>
+              <h2 className="text-2xl font-bold">{cs.title}</h2>
+            </div>
+
+            {/* Problem / Approach / Result */}
+            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              {/* Problem */}
+              <div className="px-7 py-5">
+                <h3
+                  className="text-xs font-bold uppercase tracking-widest mb-3"
+                  style={{ color: "var(--accent-1)" }}
+                >
+                  The Problem
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {cs.problem}
+                </p>
               </div>
 
-              <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--muted)" }}>
-                {project.description}
-              </p>
-
-              {/* Highlights */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                {project.highlights.map((h) => (
-                  <span
-                    key={h}
-                    className="text-xs font-medium px-3 py-1.5 rounded-full"
-                    style={{
-                      background: "rgba(139,92,246,0.1)",
-                      color: "var(--accent-2)",
-                      border: "1px solid rgba(139,92,246,0.2)",
-                    }}
-                  >
-                    {h}
-                  </span>
-                ))}
+              {/* Approach */}
+              <div className="px-7 py-5">
+                <h3
+                  className="text-xs font-bold uppercase tracking-widest mb-3"
+                  style={{ color: "var(--accent-1)" }}
+                >
+                  The Approach
+                </h3>
+                <PreformattedText text={cs.approach as string} />
               </div>
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs px-2.5 py-1 rounded-full border"
-                    style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-                  >
-                    {tag}
-                  </span>
-                ))}
+              {/* Result */}
+              <div className="px-7 py-5">
+                <h3
+                  className="text-xs font-bold uppercase tracking-widest mb-3"
+                  style={{ color: "var(--accent-1)" }}
+                >
+                  The Result
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {cs.result}
+                </p>
+              </div>
+
+              {/* Stack */}
+              <div className="px-7 py-5">
+                <h3
+                  className="text-xs font-bold uppercase tracking-widest mb-3"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Stack
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {cs.stack.map((item) => (
+                    <span
+                      key={item}
+                      className="text-xs px-2.5 py-1 rounded-full border"
+                      style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </article>

@@ -6,20 +6,20 @@
   --muted: #6b7280;
   --border: #e5e7eb;
   --card: #f9fafb;
-  --accent-1: #6366f1;
-  --accent-2: #8b5cf6;
-  --accent-3: #ec4899;
+  --accent-1: #0ea5e9;
+  --accent-2: #0284c7;
+  --accent-3: #38bdf8;
 }
 
 .dark {
   --background: #0a0a0f;
   --foreground: #f0f0f5;
   --muted: #9ca3af;
-  --border: #1f1f2e;
-  --card: #0f0f1a;
-  --accent-1: #818cf8;
-  --accent-2: #a78bfa;
-  --accent-3: #f472b6;
+  --border: #1a1f2e;
+  --card: #0d1117;
+  --accent-1: #38bdf8;
+  --accent-2: #0ea5e9;
+  --accent-3: #7dd3fc;
 }
 
 @theme inline {
@@ -57,7 +57,7 @@ body {
 
 /* Animated gradient background */
 .gradient-bg {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #38bdf8 100%);
 }
 
 /* Prose styles for MDX content */
@@ -85,7 +85,7 @@ body {
   border-radius: 4px;
   padding: 0.125rem 0.375rem;
   font-size: 0.875em;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
 }
 .prose pre {
   background: var(--card);

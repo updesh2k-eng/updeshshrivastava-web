@@ -1,41 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Mail, ArrowUpRight } from "lucide-react";
-import { GithubIcon, TwitterXIcon, LinkedinIcon } from "@/components/SocialIcons";
+import { Mail, MapPin, ArrowUpRight } from "lucide-react";
+import { GithubIcon, LinkedinIcon } from "@/components/SocialIcons";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch with Updesh Shrivastava.",
+  description:
+    "Get in touch with Updesh Shrivastava — Senior PM, AI Systems Builder, Lead Consultant based in Nürnberg, Germany.",
 };
 
-const channels = [
+const available = [
   {
-    icon: Mail,
+    title: "AI systems architecture and consulting",
+    detail:
+      "Designing hybrid local/cloud agent infrastructure for EU businesses and regulatory environments.",
+  },
+  {
+    title: "Enterprise AI implementation",
+    detail:
+      "Bringing 22 years of delivery experience to organisations starting their AI journey in Germany and the EU.",
+  },
+  {
+    title: "Speaking and writing",
+    detail:
+      "Practical AI automation for senior practitioners who want to build, not just observe.",
+  },
+];
+
+const contactLinks = [
+  {
+    Icon: Mail,
     label: "Email",
-    value: "hello@updeshshrivastava.com",
-    href: "mailto:hello@updeshshrivastava.com",
-    description: "Best for project inquiries and collaborations",
+    value: "updesh2k@gmail.com",
+    href: "mailto:updesh2k@gmail.com",
   },
   {
-    icon: TwitterXIcon,
-    label: "Twitter / X",
-    value: "@updeshshrivastava",
-    href: "https://twitter.com/updeshshrivastava",
-    description: "Quick thoughts, DMs open",
-  },
-  {
-    icon: GithubIcon,
-    label: "GitHub",
-    value: "updesh2k-eng",
-    href: "https://github.com/updesh2k-eng",
-    description: "Open-source projects and code",
-  },
-  {
-    icon: LinkedinIcon,
+    Icon: LinkedinIcon,
     label: "LinkedIn",
-    value: "Updesh Shrivastava",
-    href: "https://linkedin.com/in/updeshshrivastava",
-    description: "Professional networking",
+    value: "linkedin.com/in/updesh-shrivastava",
+    href: "https://linkedin.com/in/updesh-shrivastava",
+  },
+  {
+    Icon: GithubIcon,
+    label: "GitHub",
+    value: "github.com/updesh2k-eng",
+    href: "https://github.com/updesh2k-eng",
+  },
+  {
+    Icon: MapPin,
+    label: "Location",
+    value: "Nürnberg, Greater Metropolitan Area, Bavaria, Germany",
+    href: null,
   },
 ];
 
@@ -43,70 +58,108 @@ export default function ContactPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-20">
       {/* Header */}
-      <section className="mb-16">
+      <section className="mb-14">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-          Get in <span className="gradient-text">Touch</span>
+          Let&apos;s <span className="gradient-text">talk</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
         <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-          Whether you have a project in mind, want to collaborate, or just want to say hi —
-          I&apos;m always happy to hear from you. I typically respond within 24–48 hours.
+          I am selective about what I take on. If what you are trying to do fits what I build
+          — I am interested in the conversation.
         </p>
       </section>
 
-      {/* Contact channels */}
-      <section className="mb-16">
-        <div className="grid gap-3">
-          {channels.map(({ icon: Icon, label, value, href, description }) => (
-            <Link
-              key={label}
-              href={href}
-              target={href.startsWith("mailto") ? undefined : "_blank"}
-              rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-              className="group flex items-center gap-5 p-5 rounded-2xl border transition-all duration-200 hover:border-violet-500/50"
+      {/* Available for */}
+      <section className="mb-12">
+        <h2 className="text-lg font-bold mb-5">Available for</h2>
+        <div className="flex flex-col gap-3">
+          {available.map((item, i) => (
+            <div
+              key={i}
+              className="flex gap-4 p-5 rounded-2xl border"
               style={{ background: "var(--card)", borderColor: "var(--border)" }}
             >
               <div
-                className="w-10 h-10 flex items-center justify-center rounded-xl shrink-0 transition-all duration-200 group-hover:gradient-bg group-hover:text-white"
-                style={{ background: "var(--border)", color: "var(--muted)" }}
-              >
-                <Icon size={18} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-sm">{label}</span>
-                  <ArrowUpRight
-                    size={12}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ color: "var(--muted)" }}
-                  />
-                </div>
-                <p className="text-sm gradient-text font-medium truncate">{value}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-                  {description}
+                className="mt-0.5 shrink-0 w-2 h-2 rounded-full gradient-bg"
+                style={{ marginTop: "6px" }}
+              />
+              <div>
+                <p className="font-semibold text-sm mb-1">{item.title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {item.detail}
                 </p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Availability note */}
-      <section>
+      {/* Currently */}
+      <section className="mb-12">
         <div
-          className="rounded-2xl p-6 border"
+          className="flex items-start gap-3 p-5 rounded-2xl border"
           style={{ background: "var(--card)", borderColor: "var(--border)" }}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm font-semibold">Available for work</span>
+          <div className="w-2 h-2 rounded-full bg-green-400 shrink-0" style={{ marginTop: "6px" }} />
+          <div>
+            <p className="font-semibold text-sm mb-1">Currently</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+              Full-time Lead Consultant at Infosys. Available for selective consulting
+              conversations. Based in Nürnberg — remote across EU.
+            </p>
           </div>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-            I&apos;m currently open to senior engineering roles, interesting consulting
-            projects, and technical writing opportunities. If you think we&apos;d be a good
-            fit, don&apos;t hesitate to reach out.
-          </p>
         </div>
+      </section>
+
+      {/* Contact details */}
+      <section className="mb-12">
+        <h2 className="text-lg font-bold mb-5">Reach me</h2>
+        <div className="flex flex-col gap-3">
+          {contactLinks.map(({ Icon, label, value, href }) => {
+            const inner = (
+              <div
+                className="flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200"
+                style={{ background: "var(--card)", borderColor: "var(--border)" }}
+              >
+                <div
+                  className="w-9 h-9 flex items-center justify-center rounded-xl shrink-0"
+                  style={{ background: "var(--border)", color: "var(--muted)" }}
+                >
+                  <Icon size={16} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: "var(--muted)" }}>
+                    {label}
+                  </p>
+                  <p className="text-sm font-medium truncate gradient-text">{value}</p>
+                </div>
+                {href && <ArrowUpRight size={14} style={{ color: "var(--muted)" }} className="shrink-0" />}
+              </div>
+            );
+
+            return href ? (
+              <Link
+                key={label}
+                href={href}
+                target={href.startsWith("mailto") ? undefined : "_blank"}
+                rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+                className="group hover:opacity-80 transition-opacity"
+              >
+                {inner}
+              </Link>
+            ) : (
+              <div key={label}>{inner}</div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Note */}
+      <section>
+        <p className="text-sm text-center italic" style={{ color: "var(--muted)" }}>
+          No rates listed here — intentionally. Every engagement is different. Start with a
+          conversation.
+        </p>
       </section>
     </div>
   );
