@@ -1,5 +1,7 @@
 import { config, collection, fields } from '@keystatic/core';
 
+// Storage switches to GitHub mode when KEYSTATIC_GITHUB_CLIENT_ID is set in Vercel env vars.
+// Callback URL must be: https://www.updeshshrivastava.com/api/keystatic/github/oauth/callback
 export default config({
   storage:
     process.env.KEYSTATIC_GITHUB_CLIENT_ID
