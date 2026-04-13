@@ -11,19 +11,19 @@ export const metadata: Metadata = {
 
 const available = [
   {
-    title: "AI systems architecture and consulting",
+    title: "Social good & non-profit AI projects",
     detail:
-      "Designing hybrid local/cloud agent infrastructure for EU businesses and regulatory environments.",
+      "Helping charities, community organisations, and social enterprises understand and apply AI. Weekends only, no charge.",
   },
   {
-    title: "Enterprise AI implementation",
+    title: "Pro bono AI literacy",
     detail:
-      "Bringing 22 years of delivery experience to organisations starting their AI journey in Germany and the EU.",
+      "Workshops, advice, or hands-on help for non-profits starting their AI journey in Germany and the EU — GDPR-aware from day one.",
   },
   {
-    title: "Speaking and writing",
+    title: "Writing and open knowledge-sharing",
     detail:
-      "Practical AI automation for senior practitioners who want to build, not just observe.",
+      "Documenting what I build publicly. If something I write is useful to your organisation, get in touch.",
   },
 ];
 
@@ -104,8 +104,9 @@ export default function ContactPage() {
           <div>
             <p className="font-semibold text-sm mb-1">Currently</p>
             <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-              Full-time Lead Consultant at Infosys. Available for selective consulting
-              conversations. Based in Nürnberg — remote across EU.
+              Full-time Lead Consultant at Infosys — not available for paid work.
+              Open to social good and non-profit conversations on weekends.
+              Based in Nürnberg — remote across EU.
             </p>
           </div>
         </div>
