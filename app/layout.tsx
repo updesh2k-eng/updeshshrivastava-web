@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
   title: {
@@ -50,9 +49,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <Navbar />
-          <main className="flex-1 pt-16">{children}</main>
-          <Footer />
+          <SiteChrome>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>
