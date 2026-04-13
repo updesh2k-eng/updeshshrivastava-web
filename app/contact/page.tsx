@@ -37,8 +37,8 @@ const contactLinks = [
   {
     Icon: LinkedinIcon,
     label: "LinkedIn",
-    value: "linkedin.com/in/updesh-shrivastava",
-    href: "https://linkedin.com/in/updesh-shrivastava",
+    value: "linkedin.com/in/updesh-shrivastava-70123814",
+    href: "https://www.linkedin.com/in/updesh-shrivastava-70123814/",
   },
   {
     Icon: GithubIcon,
@@ -155,13 +155,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Note */}
-      <section>
-        <p className="text-sm text-center italic" style={{ color: "var(--muted)" }}>
-          No rates listed here — intentionally. Every engagement is different. Start with a
-          conversation.
-        </p>
-      </section>
     </div>
   );
 }

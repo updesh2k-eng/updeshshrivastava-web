@@ -4,7 +4,7 @@ import { GithubIcon, TwitterXIcon, LinkedinIcon } from "./SocialIcons";
 const socialLinks = [
   { href: "https://github.com/updesh2k-eng", Icon: GithubIcon, label: "GitHub" },
   { href: "https://twitter.com/updeshshrivastava", Icon: TwitterXIcon, label: "Twitter" },
-  { href: "https://linkedin.com/in/updeshshrivastava", Icon: LinkedinIcon, label: "LinkedIn" },
+  { href: "https://www.linkedin.com/in/updesh-shrivastava-70123814/", Icon: LinkedinIcon, label: "LinkedIn" },
 ];
 
 export function Footer() {
