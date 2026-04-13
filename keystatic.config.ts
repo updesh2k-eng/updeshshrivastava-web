@@ -1,21 +1,18 @@
 import { config, collection, fields } from '@keystatic/core';
 
-// NEXT_PUBLIC_KEYSTATIC_GITHUB_CLIENT_ID switches storage to GitHub mode.
-// This NEXT_PUBLIC_ prefix is required so Next.js exposes it to the browser bundle
-// (the Keystatic admin UI is a client component and cannot read server-only env vars).
-// Keep KEYSTATIC_GITHUB_CLIENT_ID + KEYSTATIC_GITHUB_CLIENT_SECRET + KEYSTATIC_SECRET for the API route.
 // GitHub OAuth callback URL: https://updeshshrivastava.com/api/keystatic/github/oauth/callback
+// Required env vars (set in Vercel, server-only):
+//   KEYSTATIC_GITHUB_CLIENT_ID
+//   KEYSTATIC_GITHUB_CLIENT_SECRET
+//   KEYSTATIC_SECRET
 export default config({
-  storage:
-    process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_CLIENT_ID
-      ? {
-          kind: 'github' as const,
-          repo: {
-            owner: 'updesh2k-eng',
-            name: 'updeshshrivastava-web',
-          },
-        }
-      : { kind: 'local' as const },
+  storage: {
+    kind: 'github' as const,
+    repo: {
+      owner: 'updesh2k-eng',
+      name: 'updeshshrivastava-web',
+    },
+  },
 
   ui: {
     brand: {
