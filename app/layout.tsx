@@ -6,27 +6,35 @@ import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "Updesh Shrivastava — Engineer & Builder",
+    default: "Updesh Shrivastava — AI Systems Builder",
     template: "%s | Updesh Shrivastava",
   },
   description:
-    "Personal website of Updesh Shrivastava — software engineer, builder, and writer. Exploring ideas at the intersection of technology and creativity.",
-  keywords: ["Updesh Shrivastava", "software engineer", "Next.js", "blog", "portfolio"],
+    "Senior PM and AI Systems Builder based in Nürnberg, Germany. Building hybrid AI agent systems for EU regulatory workflows.",
+  keywords: ["Updesh Shrivastava", "AI Systems Builder", "Senior PM", "Nürnberg", "GDPR", "AI agents"],
+  icons: {
+    icon: [
+      { url: "/logo-icon.png", type: "image/png" },
+    ],
+    apple: "/logo-icon.png",
+    shortcut: "/logo-icon.png",
+  },
   openGraph: {
-    title: "Updesh Shrivastava — Engineer & Builder",
+    title: "Updesh Shrivastava — AI Systems Builder",
     description:
-      "Personal website of Updesh Shrivastava — software engineer, builder, and writer.",
+      "Senior PM and AI Systems Builder based in Nürnberg, Germany. Building hybrid AI agent systems for EU regulatory workflows.",
     url: "https://updeshshrivastava.com",
     siteName: "Updesh Shrivastava",
+    images: [{ url: "/logo.png", width: 800, height: 800, alt: "Updesh Shrivastava" }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Updesh Shrivastava — Engineer & Builder",
+    card: "summary",
+    title: "Updesh Shrivastava — AI Systems Builder",
     description:
-      "Personal website of Updesh Shrivastava — software engineer, builder, and writer.",
-    creator: "@updeshshrivastava",
+      "Senior PM and AI Systems Builder based in Nürnberg, Germany.",
+    images: ["/logo-icon.png"],
   },
 };
 

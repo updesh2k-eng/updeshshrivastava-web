@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
@@ -27,11 +28,18 @@ export function Navbar() {
     >
       <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-lg font-bold tracking-tight gradient-text"
-        >
-          Updesh<span className="font-light">.</span>
+        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Image
+            src="/logo-icon.png"
+            alt="Updesh Shrivastava"
+            width={36}
+            height={36}
+            className="rounded-lg"
+            priority
+          />
+          <span className="text-sm font-bold tracking-tight gradient-text hidden sm:inline">
+            Updesh Shrivastava
+          </span>
         </Link>
 
         {/* Desktop Nav */}
