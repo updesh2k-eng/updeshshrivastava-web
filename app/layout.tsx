@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteChrome } from "@/components/SiteChrome";
+import { getSiteConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: {
@@ -42,6 +43,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = getSiteConfig();
   return (
     <html
       lang="en"
@@ -49,7 +51,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SiteChrome>{children}</SiteChrome>
+          <SiteChrome navLinks={config.nav}>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>

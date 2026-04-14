@@ -7,17 +7,9 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import clsx from "clsx";
+import type { NavLink } from "@/lib/config";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/principles", label: "Principles" },
-  { href: "/work", label: "Work" },
-  { href: "/writing", label: "Writing" },
-  { href: "/contact", label: "Contact" },
-];
-
-export function Navbar() {
+export function Navbar({ navLinks }: { navLinks: NavLink[] }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
