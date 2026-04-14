@@ -1,32 +1,34 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getAllPosts } from "@/lib/posts";
+import { supabase } from "@/lib/supabase";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Writing",
-  description: "Essays and technical articles by Updesh Shrivastava on engineering, design, and building software.",
+  description: "Essays and technical articles by Updesh Shrivastava.",
 };
 
-export default function WritingPage() {
-  const posts = getAllPosts();
+export default async function WritingPage() {
+  // Fetch published posts from Supabase
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select("slug, title, date, excerpt, tags")
+    .eq("status", "published")
+    .order("date", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching posts:", error);
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-20">
-      {/* Header */}
       <section className="mb-16">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
           <span className="gradient-text">Writing</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
-        <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-          Thoughts on engineering, design systems, developer experience, and the craft of
-          building software. No filler, no fluff — just things I wish I had read earlier.
-        </p>
       </section>
 
-      {/* Posts list */}
-      {posts.length === 0 ? (
+      {!posts || posts.length === 0 ? (
         <p style={{ color: "var(--muted)" }}>No posts yet. Check back soon!</p>
       ) : (
         <div className="flex flex-col gap-0">
@@ -50,31 +52,11 @@ export default function WritingPage() {
                       day: "numeric",
                     })}
                   </span>
-                  <span className="text-xs" style={{ color: "var(--muted)" }}>
-                    {post.readTime}
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-xs px-2 py-0.5 rounded-full border"
-                        style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
-              <ArrowRight
-                size={16}
-                className="shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200"
-                style={{ color: "var(--muted)" }}
-              />
+              <ArrowRight size={16} className="shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 transition-all" />
             </Link>
           ))}
-          {/* Bottom border */}
-          <div className="border-t" style={{ borderColor: "var(--border)" }} />
         </div>
       )}
     </div>
