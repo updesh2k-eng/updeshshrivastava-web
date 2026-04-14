@@ -896,20 +896,22 @@ function NavEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) {
 
 function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) {
   type HomeConfig = SiteConfig["home"];
+  type BrandConfig = SiteConfig["brand"];
   const [home, setHome] = useState<HomeConfig | null>(null);
+  const [brand, setBrand] = useState<BrandConfig | null>(null);
   const [sha, setSha] = useState("");
   const [fullConfig, setFullConfig] = useState<SiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState<"hero" | "work" | "cta">("hero");
+  const [tab, setTab] = useState<"brand" | "hero" | "work" | "cta">("brand");
 
   useEffect(() => {
     (async () => {
       try {
         const { config, sha: s } = await readConfig(pat);
-        setFullConfig(config); setHome(config.home); setSha(s);
+        setFullConfig(config); setHome(config.home); setBrand(config.brand); setSha(s);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load config");
       } finally { setLoading(false); }
@@ -917,10 +919,10 @@ function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) 
   }, [pat]);
 
   async function handleSave() {
-    if (!fullConfig || !home) return;
+    if (!fullConfig || !home || !brand) return;
     setSaving(true); setError("");
     try {
-      await writeConfig(pat, { ...fullConfig, home }, sha);
+      await writeConfig(pat, { ...fullConfig, brand, home }, sha);
       setSaved(true); setTimeout(onDone, 900);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -934,7 +936,7 @@ function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) 
   const lStyle = { color: "var(--muted)" };
 
   if (loading) return <div className="min-h-screen" style={{ background: "var(--background)" }}><AdminHeader title="Home Page" /><Spinner /></div>;
-  if (!home) return null;
+  if (!home || !brand) return null;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--background)" }}>
@@ -950,16 +952,25 @@ function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) 
 
       {/* Tabs */}
       <div className="border-b px-5 flex gap-1" style={{ borderColor: "var(--border)" }}>
-        {(["hero", "work", "cta"] as const).map((t) => (
+        {(["brand", "hero", "work", "cta"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-3 text-xs font-semibold capitalize transition-colors ${tab === t ? "border-b-2 border-sky-500 text-sky-400" : "hover:opacity-70"}`}
             style={tab !== t ? { color: "var(--muted)" } : {}}
-          >{t === "work" ? "Featured Work" : t === "cta" ? "CTA Section" : "Hero"}</button>
+          >{t === "work" ? "Featured Work" : t === "cta" ? "CTA Section" : t === "brand" ? "Brand" : "Hero"}</button>
         ))}
       </div>
 
       <div className="max-w-2xl mx-auto px-5 py-8 flex flex-col gap-5">
         {error && <div className="text-sm text-red-400 p-4 rounded-xl border border-red-500/30 bg-red-500/10">{error}</div>}
+
+        {tab === "brand" && brand && (
+          <>
+            <div><label className={lCls} style={lStyle}>Site name</label>
+              <input className={iCls} style={iStyle} value={brand.name} onChange={(e) => setBrand({ ...brand, name: e.target.value })} /></div>
+            <div><label className={lCls} style={lStyle}>Tagline</label>
+              <input className={iCls} style={iStyle} value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} /></div>
+          </>
+        )}
 
         {tab === "hero" && (
           <>
