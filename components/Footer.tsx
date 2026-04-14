@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { GithubIcon, TwitterXIcon, LinkedinIcon } from "./SocialIcons";
+import { SubscribeForm } from "./SubscribeForm";
 
 const socialLinks = [
   { href: "https://github.com/updesh2k-eng", Icon: GithubIcon, label: "GitHub" },
   { href: "https://twitter.com/updeshshrivastava", Icon: TwitterXIcon, label: "Twitter" },
-  { href: "https://www.linkedin.com/in/updesh-shrivastava-70123814/", Icon: LinkedinIcon, label: "LinkedIn" },
+  { href: "https://linkedin.com/in/updeshshrivastava", Icon: LinkedinIcon, label: "LinkedIn" },
 ];
 
 export function Footer() {
@@ -13,25 +14,30 @@ export function Footer() {
       className="border-t mt-24"
       style={{ borderColor: "var(--border)" }}
     >
-      <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-8">
+        {/* Subscribe row */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-8 border-b" style={{ borderColor: "var(--border)" }}>
+          <SubscribeForm />
+          <div className="flex items-center gap-4 shrink-0">
+            {socialLinks.map(({ href, Icon, label }) => (
+              <Link
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="transition-opacity duration-200 hover:opacity-60"
+                style={{ color: "var(--muted)" }}
+              >
+                <Icon size={18} />
+              </Link>
+            ))}
+          </div>
+        </div>
+        {/* Copyright */}
         <p className="text-sm" style={{ color: "var(--muted)" }}>
           © {new Date().getFullYear()} Updesh Shrivastava. Built with Next.js &amp; Tailwind CSS.
         </p>
-        <div className="flex items-center gap-4">
-          {socialLinks.map(({ href, Icon, label }) => (
-            <Link
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="transition-opacity duration-200 hover:opacity-60"
-              style={{ color: "var(--muted)" }}
-            >
-              <Icon size={18} />
-            </Link>
-          ))}
-        </div>
       </div>
     </footer>
   );
