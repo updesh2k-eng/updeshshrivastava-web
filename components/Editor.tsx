@@ -6,56 +6,60 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 
-export default function Editor({ content, onChange }: { content: any, onChange: (val: any) => void }) {
+interface EditorProps {
+  content: any;
+  onChange: (val: any) => void;
+}
+
+export default function Editor({ content, onChange }: EditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       Link.configure({ openOnClick: false }),
       Image,
-      Placeholder.configure({ placeholder: 'Start writing your masterpiece...' }),
+      Placeholder.configure({ 
+        placeholder: 'Write your content here (supports Markdown shortcuts)...' 
+      }),
     ],
     content: content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON()); // We save as JSON for maximum flexibility
+      // We save as HTML to keep it compatible with your existing MDXRemote renderer
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm dark:prose-invert max-w-none min-h-[400px] focus:outline-none p-4',
+      },
     },
   });
 
   if (!editor) return null;
 
+  const MenuButton = ({ onClick, active, children }: any) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+        active ? 'bg-sky-500 text-white' : 'hover:bg-black/10 dark:hover:bg-white/10'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
   return (
     <div className="border border-[var(--border)] rounded-xl overflow-hidden bg-[var(--card)]">
-      {/* Basic Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 border-b border-[var(--border)] bg-black/5">
-        <button 
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`px-2 py-1 rounded ${editor.isActive('bold') ? 'bg-sky-500 text-white' : 'hover:bg-black/10'}`}
-        >
-          B
-        </button>
-        <button 
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`px-2 py-1 rounded ${editor.isActive('italic') ? 'bg-sky-500 text-white' : 'hover:bg-black/10'}`}
-        >
-          I
-        </button>
-        <button 
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`px-2 py-1 rounded ${editor.isActive('heading') ? 'bg-sky-500 text-white' : 'hover:bg-black/10'}`}
-        >
-          H2
-        </button>
-        <button 
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`px-2 py-1 rounded ${editor.isActive('bulletList') ? 'bg-sky-500 text-white' : 'hover:bg-black/10'}`}
-        >
-          List
-        </button>
+      {/* Toolbar */}
+      <div className="flex flex-wrap gap-1 p-2 border-b border-[var(--border)] bg-black/5 dark:bg-white/5">
+        <MenuButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>B</MenuButton>
+        <MenuButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')}>I</MenuButton>
+        <MenuButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })}>H2</MenuButton>
+        <MenuButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })}>H3</MenuButton>
+        <MenuButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')}>List</MenuButton>
+        <MenuButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')}>Code</MenuButton>
       </div>
 
-      <EditorContent 
-        editor={editor} 
-        className="prose prose-sm max-w-none p-4 min-h-[400px] outline-none"
-      />
+      <EditorContent editor={editor} />
     </div>
   );
 }
