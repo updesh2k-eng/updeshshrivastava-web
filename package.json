@@ -13,6 +13,13 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
+    "@tiptap/react": "^2.11.5",
+    "@tiptap/starter-kit": "^2.11.5",
+  "@tiptap/extension-link": "^2.11.5",
+  "@tiptap/extension-image": "^2.11.5",
+  "@tiptap/extension-placeholder": "^2.11.5",
+  "@tiptap/extension-code-block-lowlight": "^2.11.5",
+  "lowlight": "^3.3.0",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.2.3",
