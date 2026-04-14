@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, ArrowUpRight } from "lucide-react";
 import { GithubIcon, TwitterXIcon, LinkedinIcon } from "@/components/SocialIcons";
+import { ContactForm } from "@/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -54,8 +55,15 @@ export default function ContactPage() {
         </p>
       </section>
 
+      {/* Contact form */}
+      <section className="mb-16">
+        <h2 className="text-lg font-bold mb-6">Send me a message</h2>
+        <ContactForm />
+      </section>
+
       {/* Contact channels */}
       <section className="mb-16">
+        <h2 className="text-lg font-bold mb-5">Or reach me directly</h2>
         <div className="grid gap-3">
           {channels.map(({ icon: Icon, label, value, href, description }) => (
             <Link
