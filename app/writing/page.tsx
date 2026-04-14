@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 export const metadata = {
   title: "Writing",
-  description: "Essays and technical articles by Updesh Shrivastava.",
+  description: "Essays and technical articles by Updesh Shrivastava on engineering, design, and building software.",
 };
 
 export default async function WritingPage() {
@@ -26,6 +26,10 @@ export default async function WritingPage() {
           <span className="gradient-text">Writing</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
+        <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
+          Thoughts on engineering, design systems, developer experience, and the craft of
+          building software.
+        </p>
       </section>
 
       {!posts || posts.length === 0 ? (
@@ -52,11 +56,27 @@ export default async function WritingPage() {
                       day: "numeric",
                     })}
                   </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {post.tags?.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2 py-0.5 rounded-full border"
+                        style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <ArrowRight size={16} className="shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 transition-all" />
+              <ArrowRight
+                size={16}
+                className="shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200"
+                style={{ color: "var(--muted)" }}
+              />
             </Link>
           ))}
+          <div className="border-t" style={{ borderColor: "var(--border)" }} />
         </div>
       )}
     </div>
