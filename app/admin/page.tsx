@@ -47,6 +47,15 @@ async function ghFetch(path: string, pat: string, init?: RequestInit) {
   });
 }
 
+function ghWriteError(msg: string): Error {
+  if (/not accessible by personal access token/i.test(msg) || /resource not accessible/i.test(msg)) {
+    return new Error(
+      "Token lacks write access. Sign out, then create a new Classic token at github.com/settings/tokens/new — tick the 'repo' checkbox."
+    );
+  }
+  return new Error(msg);
+}
+
 async function listPosts(pat: string): Promise<GHFile[]> {
   const res = await ghFetch(`/repos/${REPO}/contents/${POSTS_PATH}`, pat);
   if (!res.ok) throw new Error(`GitHub ${res.status}: ${res.statusText}`);
@@ -96,10 +105,7 @@ async function writePost(
   );
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      (err as { message?: string }).message ||
-        `GitHub ${res.status}: ${res.statusText}`
-    );
+    throw ghWriteError((err as { message?: string }).message || `GitHub ${res.status}: ${res.statusText}`);
   }
 }
 
@@ -122,7 +128,7 @@ async function writeConfig(pat: string, config: SiteConfig, sha: string) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { message?: string }).message || `GitHub ${res.status}`);
+    throw ghWriteError((err as { message?: string }).message || `GitHub ${res.status}`);
   }
 }
 
@@ -149,7 +155,7 @@ async function uploadImage(pat: string, path: string, base64: string, sha?: stri
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { message?: string }).message || `GitHub ${res.status}`);
+    throw ghWriteError((err as { message?: string }).message || `GitHub ${res.status}`);
   }
 }
 
@@ -284,13 +290,22 @@ function LoginScreen({ onLogin }: { onLogin: (pat: string) => void }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${GH_API}/user`, {
-        headers: {
-          Authorization: `token ${pat}`,
-          Accept: "application/vnd.github+json",
-        },
+      // 1. Validate the token itself
+      const userRes = await fetch(`${GH_API}/user`, {
+        headers: { Authorization: `token ${pat}`, Accept: "application/vnd.github+json" },
       });
-      if (!res.ok) throw new Error("Invalid token — check the PAT and its permissions.");
+      if (!userRes.ok) throw new Error("Invalid token — it may be expired or malformed.");
+
+      // 2. Test repo read + write access by checking repo permissions
+      const repoRes = await fetch(`${GH_API}/repos/${REPO}`, {
+        headers: { Authorization: `token ${pat}`, Accept: "application/vnd.github+json" },
+      });
+      if (!repoRes.ok) throw new Error("Token cannot access the repository. Check you selected the right repo when creating the token.");
+      const repoData = await repoRes.json() as { permissions?: { push?: boolean } };
+      if (repoData.permissions && repoData.permissions.push === false) {
+        throw new Error("Token has read-only access. You need write (push) permission on the repository.");
+      }
+
       localStorage.setItem(PAT_KEY, pat);
       onLogin(pat);
     } catch (err: unknown) {
@@ -329,19 +344,19 @@ function LoginScreen({ onLogin }: { onLogin: (pat: string) => void }) {
                 color: "var(--foreground)",
               }}
             />
-            <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--muted)" }}>
-              Create a{" "}
-              <a
-                href="https://github.com/settings/tokens?type=beta"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:opacity-70"
-              >
-                fine-grained token
-              </a>{" "}
-              for <strong>updesh2k-eng/updeshshrivastava-web</strong> with{" "}
-              <strong>Contents: Read &amp; Write</strong>.
-            </p>
+            <div className="mt-2 text-xs rounded-xl border p-3 flex flex-col gap-2" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+              <p className="font-semibold" style={{ color: "var(--foreground)" }}>Recommended: Classic token (simpler)</p>
+              <p>
+                <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-70">
+                  github.com/settings/tokens/new
+                </a>
+                {" "}→ tick the <strong>repo</strong> checkbox → Generate.
+              </p>
+              <p className="pt-1 border-t" style={{ borderColor: "var(--border)" }}>
+                <span className="font-semibold" style={{ color: "var(--foreground)" }}>Or: Fine-grained token</span>
+                {" "}→ Repository: <strong>updeshshrivastava-web</strong> → Permissions → Contents: <strong>Read &amp; Write</strong>.
+              </p>
+            </div>
           </div>
 
           {error && (
