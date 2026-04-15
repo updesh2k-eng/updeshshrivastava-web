@@ -8,6 +8,7 @@ import { MDXRemote } from "@/components/MDXRemote";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SocialShare } from "@/components/SocialShare";
 import { ViewCounter } from "./ViewCounter";
+import { getT, getLocale } from "@/lib/i18n";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -69,7 +70,11 @@ export default async function PostPage({ params }: Props) {
   const { slug } = await params;
 
   // Try Supabase first, fall back to MDX
-  const sbPost = await getPublishedPostBySlug(slug).catch(() => null);
+  const [sbPost, t, locale] = await Promise.all([
+    getPublishedPostBySlug(slug).catch(() => null),
+    getT(),
+    getLocale(),
+  ]);
   const mdxPost = sbPost ? null : getMdxPost(slug);
 
   if (!sbPost && !mdxPost) notFound();
@@ -79,6 +84,7 @@ export default async function PostPage({ params }: Props) {
   const tags     = sbPost ? (sbPost.tags     ?? [])             : (mdxPost?.tags     ?? []);
   const readTime = sbPost ? (sbPost.read_time ?? "1 min read")  : (mdxPost?.readTime ?? "1 min read");
   const postUrl = `${SITE_URL}/writing/${slug}`;
+  const dateLocale = locale === "de" ? "de-DE" : "en-US";
 
   return (
     <>
@@ -91,7 +97,7 @@ export default async function PostPage({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm mb-10 hover:opacity-60 transition-opacity"
           style={{ color: "var(--muted)" }}
         >
-          <ArrowLeft size={14} /> Back to Writing
+          <ArrowLeft size={14} /> {t("writing.backToWriting")}
         </Link>
 
         {/* Cover image */}
@@ -122,7 +128,7 @@ export default async function PostPage({ params }: Props) {
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: "var(--muted)" }}>
             <time>
-              {new Date(date).toLocaleDateString("en-US", {
+              {new Date(date).toLocaleDateString(dateLocale, {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -133,7 +139,7 @@ export default async function PostPage({ params }: Props) {
             {sbPost && (
               <>
                 <span>·</span>
-                <span>{sbPost.views ?? 0} views</span>
+                <span>{sbPost.views ?? 0} {t("writing.views")}</span>
               </>
             )}
           </div>
@@ -163,7 +169,7 @@ export default async function PostPage({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm hover:opacity-60 transition-opacity"
           style={{ color: "var(--muted)" }}
         >
-          <ArrowLeft size={14} /> Back to all posts
+          <ArrowLeft size={14} /> {t("writing.backToAllPosts")}
         </Link>
       </div>
     </>

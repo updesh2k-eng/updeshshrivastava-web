@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getPublishedPosts } from "@/lib/supabase-posts";
 import { getAllPosts } from "@/lib/posts";
+import { getT } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Writing",
@@ -22,10 +23,10 @@ type ListPost = {
 };
 
 export default async function WritingPage() {
-  // Fetch from both sources, Supabase takes precedence for same slug
-  const [sbPosts, mdxPosts] = await Promise.all([
+  const [sbPosts, mdxPosts, t] = await Promise.all([
     getPublishedPosts().catch(() => []),
     Promise.resolve(getAllPosts()),
+    getT(),
   ]);
 
   const supabaseSlugs = new Set(sbPosts.map((p) => p.slug));
@@ -58,18 +59,17 @@ export default async function WritingPage() {
       {/* Header */}
       <section className="mb-16">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-          <span className="gradient-text">Writing</span>
+          <span className="gradient-text">{t("writing.title")}</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
         <p className="text-base leading-relaxed" style={{ color: "var(--muted)" }}>
-          Thoughts on engineering, design systems, developer experience, and the craft of
-          building software. No filler, no fluff — just things I wish I had read earlier.
+          {t("writing.subtitle")}
         </p>
       </section>
 
       {/* Posts list */}
       {combined.length === 0 ? (
-        <p style={{ color: "var(--muted)" }}>No posts yet. Check back soon!</p>
+        <p style={{ color: "var(--muted)" }}>{t("writing.noPosts")}</p>
       ) : (
         <div className="flex flex-col gap-0">
           {combined.map((post) => (

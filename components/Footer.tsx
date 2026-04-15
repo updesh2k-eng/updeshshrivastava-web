@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { GithubIcon, TwitterXIcon, LinkedinIcon } from "./SocialIcons";
 import { SubscribeForm } from "./SubscribeForm";
+import { useLang } from "./LangContext";
 
 const socialLinks = [
   { href: "https://github.com/updesh2k-eng", Icon: GithubIcon, label: "GitHub" },
@@ -9,6 +12,8 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const { t } = useLang();
+
   return (
     <footer
       className="border-t mt-24"
@@ -37,14 +42,14 @@ export function Footer() {
         {/* Copyright + Legal */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            © {new Date().getFullYear()} Updesh Shrivastava. Built with Next.js &amp; Tailwind CSS.
+            © {new Date().getFullYear()} Updesh Shrivastava. {t("footer.builtWith")}
           </p>
           <div className="flex items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
             <Link href="/impressum" className="hover:opacity-70 transition-opacity underline underline-offset-2">
-              Impressum
+              {t("footer.impressum")}
             </Link>
             <Link href="/privacy" className="hover:opacity-70 transition-opacity underline underline-offset-2">
-              Privacy Policy
+              {t("footer.privacy")}
             </Link>
           </div>
         </div>

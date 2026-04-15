@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sparkles } from "lucide-react";
 import { getNewsItems } from "@/lib/supabase-news";
 import { NewsGrid } from "./NewsGrid";
+import { getT } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "AI News",
@@ -26,7 +27,10 @@ const SOURCES = [
 ];
 
 export default async function AINewsPage() {
-  const items = await getNewsItems(120, 14).catch(() => []);
+  const [items, t] = await Promise.all([
+    getNewsItems(120, 14).catch(() => []),
+    getT(),
+  ]);
 
   // Most recent created_at tells us when the last fetch ran
   const lastFetch = items.length > 0
@@ -48,18 +52,17 @@ export default async function AINewsPage() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <section className="mb-14">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-          <span className="gradient-text">AI News</span>
+          <span className="gradient-text">{t("aiNews.title")}</span>
         </h1>
         <div className="w-16 h-1 rounded-full gradient-bg mb-6" />
         <p className="text-base leading-relaxed max-w-2xl mb-4" style={{ color: "var(--muted)" }}>
-          Curated daily from 9 leading AI sources. Every article is scored by Claude for
-          relevance and quality — only the signal, none of the noise.
+          {t("aiNews.subtitle")}
         </p>
 
         <div className="flex flex-wrap items-center gap-3 text-xs" style={{ color: "var(--muted)" }}>
           {lastFetch && (
             <span>
-              Updated{" "}
+              {t("aiNews.updated")}{" "}
               {lastFetch.toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -73,19 +76,19 @@ export default async function AINewsPage() {
           {todayCount > 0 && (
             <>
               <span className="opacity-40">·</span>
-              <span className="text-green-400">{todayCount} new today</span>
+              <span className="text-green-400">{todayCount} {t("aiNews.newToday")}</span>
             </>
           )}
           {items.length > 0 && (
             <>
               <span className="opacity-40">·</span>
-              <span>{items.length} articles</span>
+              <span>{items.length} {t("aiNews.articles")}</span>
             </>
           )}
           <span className="opacity-40">·</span>
           <span className="inline-flex items-center gap-1">
             <Sparkles size={11} className="text-purple-400" />
-            Relevance scored by Claude AI
+            {t("aiNews.scoredBy")}
           </span>
         </div>
       </section>
@@ -96,7 +99,7 @@ export default async function AINewsPage() {
       {/* ── Attribution footer ───────────────────────────────────────────────── */}
       <footer className="mt-20 pt-8 border-t" style={{ borderColor: "var(--border)" }}>
         <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>
-          Sources
+          {t("aiNews.sources")}
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-6">
           {SOURCES.map((s) => (
@@ -113,9 +116,7 @@ export default async function AINewsPage() {
           ))}
         </div>
         <p className="text-xs leading-relaxed" style={{ color: "var(--muted)", opacity: 0.6 }}>
-          Headlines and excerpts are shown for attribution and discovery only — all articles
-          link to their original source. This page does not reproduce full article content.
-          Relevance filtering is automated via Claude AI and updated daily.
+          {t("aiNews.attribution")}
         </p>
       </footer>
     </div>

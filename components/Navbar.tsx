@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import clsx from "clsx";
@@ -54,6 +55,7 @@ export function Navbar({ navLinks }: { navLinks: NavLink[] }) {
         </nav>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
           {/* Mobile menu button */}
           <button

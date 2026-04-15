@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteChrome } from "@/components/SiteChrome";
 import { getSiteConfig } from "@/lib/config";
+import { LangProvider } from "@/components/LangContext";
+import type { Locale } from "@/lib/i18n";
+import enMessages from "@/messages/en.json";
+import deMessages from "@/messages/de.json";
 
 export const revalidate = 60;
+
+const allMessages: Record<Locale, Record<string, string>> = {
+  en: enMessages,
+  de: deMessages,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -50,15 +60,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const config = await getSiteConfig();
+  const [config, cookieStore] = await Promise.all([
+    getSiteConfig(),
+    cookies(),
+  ]);
+  const lang: Locale = cookieStore.get("lang")?.value === "de" ? "de" : "en";
+  const messages = allMessages[lang];
+
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html lang={lang} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SiteChrome navLinks={config.nav}>{children}</SiteChrome>
+          <LangProvider lang={lang} messages={messages}>
+            <SiteChrome navLinks={config.nav}>{children}</SiteChrome>
+          </LangProvider>
         </ThemeProvider>
       </body>
     </html>

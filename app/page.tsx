@@ -3,11 +3,12 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { GithubIcon, TwitterXIcon, LinkedinIcon } from "@/components/SocialIcons";
 import { getSiteConfig } from "@/lib/config";
 import { getAllPosts } from "@/lib/posts";
+import { getT } from "@/lib/i18n";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const { home } = await getSiteConfig();
+  const [{ home }, t] = await Promise.all([getSiteConfig(), getT()]);
   const recentPosts = getAllPosts().slice(0, 3);
 
   return (
@@ -83,9 +84,9 @@ export default async function HomePage() {
       {/* Featured Work */}
       <section className="mt-32">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl font-bold tracking-tight">Selected Work</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("home.selectedWork")}</h2>
           <Link href="/work" className="text-sm flex items-center gap-1 hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }}>
-            All projects <ArrowRight size={14} />
+            {t("home.allProjects")} <ArrowRight size={14} />
           </Link>
         </div>
         <div className="grid gap-4">
@@ -116,9 +117,9 @@ export default async function HomePage() {
       {/* Recent Writing — pulled from actual posts */}
       <section className="mt-24">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl font-bold tracking-tight">Recent Writing</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("home.recentWriting")}</h2>
           <Link href="/writing" className="text-sm flex items-center gap-1 hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }}>
-            All posts <ArrowRight size={14} />
+            {t("home.allPosts")} <ArrowRight size={14} />
           </Link>
         </div>
         <div className="flex flex-col gap-0 divide-y" style={{ borderColor: "var(--border)" }}>

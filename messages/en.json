@@ -1,0 +1,26 @@
+{
+  "home.selectedWork": "Selected Work",
+  "home.allProjects": "All projects",
+  "home.recentWriting": "Recent Writing",
+  "home.allPosts": "All posts",
+
+  "writing.title": "Writing",
+  "writing.subtitle": "Thoughts on engineering, design systems, developer experience, and the craft of building software. No filler, no fluff — just things I wish I had read earlier.",
+  "writing.noPosts": "No posts yet. Check back soon!",
+  "writing.backToWriting": "Back to Writing",
+  "writing.backToAllPosts": "Back to all posts",
+  "writing.views": "views",
+
+  "aiNews.title": "AI News",
+  "aiNews.subtitle": "Curated daily from 9 leading AI sources. Every article is scored by Claude for relevance and quality — only the signal, none of the noise.",
+  "aiNews.sources": "Sources",
+  "aiNews.updated": "Updated",
+  "aiNews.newToday": "new today",
+  "aiNews.articles": "articles",
+  "aiNews.scoredBy": "Relevance scored by Claude AI",
+  "aiNews.attribution": "Headlines and excerpts are shown for attribution and discovery only — all articles link to their original source. This page does not reproduce full article content. Relevance filtering is automated via Claude AI and updated daily.",
+
+  "footer.builtWith": "Built with Next.js & Tailwind CSS.",
+  "footer.impressum": "Impressum",
+  "footer.privacy": "Privacy Policy"
+}

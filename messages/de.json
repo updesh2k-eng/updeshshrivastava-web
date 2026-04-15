@@ -1,0 +1,26 @@
+{
+  "home.selectedWork": "Ausgewählte Projekte",
+  "home.allProjects": "Alle Projekte",
+  "home.recentWriting": "Aktuelle Beiträge",
+  "home.allPosts": "Alle Beiträge",
+
+  "writing.title": "Blog",
+  "writing.subtitle": "Gedanken zu Engineering, Design-Systemen, Entwicklererfahrung und dem Handwerk der Softwareentwicklung. Kein Füllstoff — nur Dinge, die ich gerne früher gelesen hätte.",
+  "writing.noPosts": "Noch keine Beiträge. Schau bald wieder vorbei!",
+  "writing.backToWriting": "Zurück zum Blog",
+  "writing.backToAllPosts": "Zurück zu allen Beiträgen",
+  "writing.views": "Aufrufe",
+
+  "aiNews.title": "KI-News",
+  "aiNews.subtitle": "Täglich aus 9 führenden KI-Quellen kuratiert. Jeder Artikel wird von Claude auf Relevanz und Qualität bewertet — nur das Signal, keines des Rauschens.",
+  "aiNews.sources": "Quellen",
+  "aiNews.updated": "Aktualisiert",
+  "aiNews.newToday": "neu heute",
+  "aiNews.articles": "Artikel",
+  "aiNews.scoredBy": "Relevanz bewertet von Claude KI",
+  "aiNews.attribution": "Schlagzeilen und Auszüge werden nur zur Quellenangabe und Entdeckung gezeigt — alle Artikel verlinken auf ihre Originalquelle. Diese Seite reproduziert keine vollständigen Artikelinhalte. Die Relevanzfilterung erfolgt automatisch über Claude KI und wird täglich aktualisiert.",
+
+  "footer.builtWith": "Erstellt mit Next.js & Tailwind CSS.",
+  "footer.impressum": "Impressum",
+  "footer.privacy": "Datenschutzerklärung"
+}
