@@ -37,7 +37,14 @@ export function PostListScreen({
       if (err) throw err;
       setPosts((data ?? []) as SBPostRow[]);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to load posts");
+      // Supabase errors are PostgrestError objects, not Error instances — surface the real message
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Failed to load posts";
+      setError(msg);
     } finally {
       setLoading(false);
     }

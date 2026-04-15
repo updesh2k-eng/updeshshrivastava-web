@@ -30,6 +30,11 @@
       "visible": true
     },
     {
+      "href": "/ai-news",
+      "label": "AI News",
+      "visible": true
+    },
+    {
       "href": "/contact",
       "label": "Contact",
       "visible": true
