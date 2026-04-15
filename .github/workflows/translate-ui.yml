@@ -1,0 +1,60 @@
+name: Weekly UI Translation
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions tab
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check for untranslated strings
+        id: check
+        run: |
+          node -e "
+            const en = require('./messages/en.json');
+            const de = require('./messages/de.json');
+            const missing = Object.keys(en).filter(k => !(k in de));
+            if (missing.length > 0) {
+              console.log('Missing keys:', missing.join(', '));
+              console.log('needs_translation=true');
+              process.stdout.write('needs_translation=true\n');
+            } else {
+              console.log('All keys already translated — nothing to do.');
+              process.stdout.write('needs_translation=false\n');
+            }
+          " >> $GITHUB_OUTPUT
+
+      - name: Translate new strings
+        if: steps.check.outputs.needs_translation == 'true'
+        env:
+          GOOGLE_TRANSLATE_API_KEY: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
+        run: node scripts/translate-ui.mjs
+
+      - name: Commit updated translations
+        if: steps.check.outputs.needs_translation == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add messages/de.json
+          git diff --cached --quiet || git commit -m "chore: auto-translate new UI strings to German"
+          git push

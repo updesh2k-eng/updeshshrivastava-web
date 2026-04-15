@@ -9,7 +9,9 @@ import type { Locale } from "@/lib/i18n";
 import enMessages from "@/messages/en.json";
 import deMessages from "@/messages/de.json";
 
-export const revalidate = 60;
+// Layout is intentionally dynamic — it reads the lang cookie on every request.
+// Individual pages still use revalidate = 60 for their own content.
+export const dynamic = "force-dynamic";
 
 const allMessages: Record<Locale, Record<string, string>> = {
   en: enMessages,
