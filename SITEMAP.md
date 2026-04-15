@@ -31,6 +31,7 @@ Read this first. Find the one file you need, open only that file.
 | `/api/github/config` GET/PUT — read/write site config via GitHub API | `app/api/github/config/route.ts` |
 | `/api/github/images` GET/POST — list/upload images via GitHub API | `app/api/github/images/route.ts` |
 | `/feed.xml` RSS 2.0 feed | `app/feed.xml/route.ts` |
+| `/ai-news` AI news curated daily | `app/ai-news/page.tsx` |
 | `/principles` | `app/principles/page.tsx` |
 | `/contact` | `app/contact/page.tsx` |
 | `/admin` view router | `app/admin/page.tsx` |
@@ -90,6 +91,7 @@ Each concern is its own file — read only what you need to edit.
 | Supabase client | `lib/supabase.ts` |
 | Supabase post queries | `lib/supabase-posts.ts` |
 | MDX → Supabase migration util | `lib/migrate.ts` |
+| AI news item types + Supabase query | `lib/supabase-news.ts` |
 
 ---
 
@@ -102,3 +104,21 @@ Each concern is its own file — read only what you need to edit.
 | `vercel.json` | Vercel deployment settings |
 | `postcss.config.mjs` | Tailwind CSS v4 via PostCSS |
 | `.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GITHUB_PAT` (git-ignored) |
+
+---
+
+## Agentic News System
+
+| File | Purpose |
+|---|---|
+| `scripts/fetch-news.mjs` | Daily fetcher: RSS → Claude scoring → Supabase upsert |
+| `.github/workflows/fetch-news.yml` | GitHub Actions cron (06:00 UTC daily) |
+| `supabase/migrations/20260415000000_news_items.sql` | `news_items` table DDL + RLS |
+| `app/ai-news/page.tsx` | News page (ISR 1 h) |
+| `app/ai-news/NewsGrid.tsx` | Client component — category filter tabs |
+| `app/ai-news/NewsCard.tsx` | Individual news card |
+
+**GitHub Secrets required** (Settings → Secrets → Actions):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` ← Supabase dashboard → Project Settings → API
+- `ANTHROPIC_API_KEY` ← console.anthropic.com
