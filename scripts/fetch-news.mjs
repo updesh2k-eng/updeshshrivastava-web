@@ -329,22 +329,44 @@ async function cleanupOldItems(supabase) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
+  // ── Pre-flight: check required env vars ──────────────────────────────────
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl) {
+    console.error("❌ NEXT_PUBLIC_SUPABASE_URL secret is missing from GitHub Actions secrets.");
+    process.exit(1);
+  }
+  if (!serviceRoleKey) {
+    console.error("❌ SUPABASE_SERVICE_ROLE_KEY secret is missing from GitHub Actions secrets.");
     process.exit(1);
   }
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+  // ── Pre-flight: verify the news_items table exists ────────────────────────
+  const { error: tableCheckError } = await supabase
+    .from("news_items")
+    .select("id")
+    .limit(1);
+
+  if (tableCheckError) {
+    console.error("❌ Cannot access the news_items table:", tableCheckError.message);
+    console.error("   → Have you run the SQL migration in Supabase?");
+    console.error("   → File: supabase/migrations/20260415000000_news_items.sql");
+    console.error("   → Go to: Supabase dashboard → SQL Editor → paste and run that file");
+    process.exit(1);
+  }
+  console.log("✓ Supabase connection and news_items table OK");
 
   const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     : null;
 
   if (!anthropic) {
-    console.warn("ANTHROPIC_API_KEY not set — all new items will be inserted without relevance filtering.");
+    console.warn("⚠ ANTHROPIC_API_KEY not set — all new items will be inserted without relevance filtering.");
+  } else {
+    console.log("✓ Anthropic API key found — Claude scoring enabled");
   }
 
   // 1. Fetch all feeds in parallel
@@ -361,7 +383,11 @@ async function main() {
 
   // 3. Dedup against DB — only process URLs we haven't seen yet
   const ids = [...new Set(validItems.map((i) => i.id))];
-  const { data: existing } = await supabase.from("news_items").select("id").in("id", ids);
+  const { data: existing, error: existingError } = await supabase
+    .from("news_items")
+    .select("id")
+    .in("id", ids);
+  if (existingError) console.warn("Dedup query warning:", existingError.message);
   const existingSet = new Set((existing ?? []).map((r) => r.id));
   const newItems = validItems.filter((i) => !existingSet.has(i.id));
   console.log(`${newItems.length} new items (${existingSet.size} already in DB)`);
@@ -396,7 +422,8 @@ async function main() {
     .upsert(toInsert, { onConflict: "id", ignoreDuplicates: false });
 
   if (error) {
-    console.error("Supabase upsert failed:", error.message);
+    console.error("❌ Supabase upsert failed:", error.message);
+    console.error("   Code:", error.code, "| Details:", error.details);
     process.exit(1);
   }
   console.log(`✓ Inserted/updated ${toInsert.length} news items`);

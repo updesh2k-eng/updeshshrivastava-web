@@ -32,6 +32,8 @@ Read this first. Find the one file you need, open only that file.
 | `/api/github/images` GET/POST — list/upload images via GitHub API | `app/api/github/images/route.ts` |
 | `/feed.xml` RSS 2.0 feed | `app/feed.xml/route.ts` |
 | `/ai-news` AI news curated daily | `app/ai-news/page.tsx` |
+| `/impressum` Legal notice (§5 TMG, bilingual) | `app/impressum/page.tsx` |
+| `/privacy` GDPR privacy policy | `app/privacy/page.tsx` |
 | `/principles` | `app/principles/page.tsx` |
 | `/contact` | `app/contact/page.tsx` |
 | `/admin` view router | `app/admin/page.tsx` |

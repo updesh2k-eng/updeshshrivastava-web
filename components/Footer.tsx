@@ -34,10 +34,20 @@ export function Footer() {
             ))}
           </div>
         </div>
-        {/* Copyright */}
-        <p className="text-sm" style={{ color: "var(--muted)" }}>
-          © {new Date().getFullYear()} Updesh Shrivastava. Built with Next.js &amp; Tailwind CSS.
-        </p>
+        {/* Copyright + Legal */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            © {new Date().getFullYear()} Updesh Shrivastava. Built with Next.js &amp; Tailwind CSS.
+          </p>
+          <div className="flex items-center gap-4 text-xs" style={{ color: "var(--muted)" }}>
+            <Link href="/impressum" className="hover:opacity-70 transition-opacity underline underline-offset-2">
+              Impressum
+            </Link>
+            <Link href="/privacy" className="hover:opacity-70 transition-opacity underline underline-offset-2">
+              Privacy Policy
+            </Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
