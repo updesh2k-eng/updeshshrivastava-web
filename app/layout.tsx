@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   description:
     "Senior PM and AI Systems Builder based in Nürnberg, Germany. Building hybrid AI agent systems for EU regulatory workflows.",
   keywords: ["Updesh Shrivastava", "AI Systems Builder", "Senior PM", "Nürnberg", "GDPR", "AI agents"],
+  alternates: {
+    types: {
+      "application/rss+xml": [{ url: "/feed.xml", title: "Updesh Shrivastava — Writing" }],
+    },
+  },
   icons: {
     icon: [
       { url: "/logo-icon.png", type: "image/png" },
