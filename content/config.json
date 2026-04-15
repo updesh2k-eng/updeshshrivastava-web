@@ -5,13 +5,13 @@
   },
   "nav": [
     {
-      "href": "/",
-      "label": "Home",
+      "href": "/about",
+      "label": "About",
       "visible": true
     },
     {
-      "href": "/about",
-      "label": "About",
+      "href": "/",
+      "label": "Home",
       "visible": true
     },
     {
