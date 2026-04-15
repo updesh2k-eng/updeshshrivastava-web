@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteChrome } from "@/components/SiteChrome";
 import { getSiteConfig } from "@/lib/config";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: {
     default: "Updesh Shrivastava — AI Systems Builder",
@@ -43,12 +45,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const config = getSiteConfig();
+  const config = await getSiteConfig();
   return (
     <html
       lang="en"

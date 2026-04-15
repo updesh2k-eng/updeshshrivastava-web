@@ -4,8 +4,10 @@ import { GithubIcon, TwitterXIcon, LinkedinIcon } from "@/components/SocialIcons
 import { getSiteConfig } from "@/lib/config";
 import { getAllPosts } from "@/lib/posts";
 
-export default function HomePage() {
-  const { home } = getSiteConfig();
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const { home } = await getSiteConfig();
   const recentPosts = getAllPosts().slice(0, 3);
 
   return (
