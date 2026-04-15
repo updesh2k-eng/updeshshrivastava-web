@@ -60,8 +60,8 @@ INSERT INTO public.site_config (key, value) VALUES (
         }
       ],
       "ctaSection": {
-        "title":       "Let'\''s work together",
-        "description": "Have an interesting project or just want to chat? I'\''m always open to new conversations.",
+        "title":       "Let''s work together",
+        "description": "Have an interesting project or just want to chat? I''m always open to new conversations.",
         "buttonLabel": "Get in touch",
         "buttonHref":  "/contact"
       }
