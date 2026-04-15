@@ -5,15 +5,12 @@ import { ArrowLeft, LogOut } from "lucide-react";
 import { AdminHeader } from "./ui";
 
 export function DashboardScreen({
-  pat,
   onLogout,
   onNav,
 }: {
-  pat: string;
   onLogout: () => void;
   onNav: (dest: string) => void;
 }) {
-  void pat;
   const cards = [
     { id: "posts",  label: "Blog Posts",  desc: "Create, edit, delete posts",      icon: "✍️" },
     { id: "nav",    label: "Navigation",  desc: "Rename & reorder menu links",      icon: "🔗" },

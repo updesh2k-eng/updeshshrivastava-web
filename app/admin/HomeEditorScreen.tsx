@@ -6,7 +6,7 @@ import { AdminHeader, Spinner } from "./ui";
 import { readConfig, writeConfig } from "./config-api";
 import type { SiteConfig } from "./types";
 
-export function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) {
+export function HomeEditorScreen({ onDone }: { onDone: () => void }) {
   type HomeConfig = SiteConfig["home"];
   type BrandConfig = SiteConfig["brand"];
   const [home, setHome] = useState<HomeConfig | null>(null);
@@ -22,19 +22,19 @@ export function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => v
   useEffect(() => {
     (async () => {
       try {
-        const { config, sha: s } = await readConfig(pat);
+        const { config, sha: s } = await readConfig();
         setFullConfig(config); setHome(config.home); setBrand(config.brand); setSha(s);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load config");
       } finally { setLoading(false); }
     })();
-  }, [pat]);
+  }, []);
 
   async function handleSave() {
     if (!fullConfig || !home || !brand) return;
     setSaving(true); setError("");
     try {
-      await writeConfig(pat, { ...fullConfig, brand, home }, sha);
+      await writeConfig({ ...fullConfig, brand, home }, sha);
       setSaved(true); setTimeout(onDone, 900);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -62,7 +62,6 @@ export function HomeEditorScreen({ pat, onDone }: { pat: string; onDone: () => v
         }
       />
 
-      {/* Tabs */}
       <div className="border-b px-5 flex gap-1" style={{ borderColor: "var(--border)" }}>
         {(["brand", "hero", "work", "cta"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}

@@ -24,18 +24,44 @@ export async function generateStaticParams() {
   return Array.from(slugs).map((slug) => ({ slug }));
 }
 
+const SITE_URL = "https://updeshshrivastava.com";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const sbPost = await getPublishedPostBySlug(slug).catch(() => null);
   if (sbPost) {
+    const canonical = `${SITE_URL}/writing/${slug}`;
+    const images = sbPost.cover_image ? [sbPost.cover_image] : [`${SITE_URL}/logo.png`];
     return {
       title: sbPost.title,
       description: sbPost.excerpt,
-      openGraph: sbPost.cover_image ? { images: [sbPost.cover_image] } : undefined,
+      alternates: { canonical },
+      openGraph: {
+        title: sbPost.title,
+        description: sbPost.excerpt,
+        url: canonical,
+        type: "article",
+        images,
+        ...(sbPost.published_at ? { publishedTime: sbPost.published_at } : {}),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: sbPost.title,
+        description: sbPost.excerpt,
+        images,
+      },
     };
   }
   const mdx = getMdxPost(slug);
-  if (mdx) return { title: mdx.title, description: mdx.excerpt };
+  if (mdx) {
+    const canonical = `${SITE_URL}/writing/${slug}`;
+    return {
+      title: mdx.title,
+      description: mdx.excerpt,
+      alternates: { canonical },
+      twitter: { card: "summary_large_image", title: mdx.title, description: mdx.excerpt },
+    };
+  }
   return {};
 }
 
@@ -52,7 +78,7 @@ export default async function PostPage({ params }: Props) {
   const date = sbPost ? (sbPost.published_at ?? sbPost.created_at) : mdxPost!.date;
   const tags = sbPost?.tags ?? mdxPost!.tags;
   const readTime = sbPost?.read_time ?? mdxPost!.readTime;
-  const postUrl = `https://updeshshrivastava.com/writing/${slug}`;
+  const postUrl = `${SITE_URL}/writing/${slug}`;
 
   return (
     <>

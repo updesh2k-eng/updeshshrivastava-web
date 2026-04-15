@@ -1,29 +1,30 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, Plus, Pencil, Trash2, LogOut } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, LogOut, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { AdminHeader, Spinner } from "./ui";
 import type { SBPostRow } from "./types";
 
+type StatusFilter = "all" | "published" | "draft";
+
 export function PostListScreen({
-  pat,
   onLogout,
   onNew,
   onEdit,
   onBack,
 }: {
-  pat: string;
   onLogout: () => void;
   onNew: () => void;
   onEdit: (id: string) => void;
   onBack?: () => void;
 }) {
-  void pat;
   const [posts, setPosts] = useState<SBPostRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -58,10 +59,27 @@ export function PostListScreen({
     }
   }
 
+  const filtered = posts.filter((p) => {
+    const matchStatus = statusFilter === "all" || p.status === statusFilter;
+    const q = search.trim().toLowerCase();
+    const matchSearch = !q || p.title?.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
+
+  const filterBtn = (s: StatusFilter, label: string) => (
+    <button
+      onClick={() => setStatusFilter(s)}
+      className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${statusFilter === s ? "gradient-bg text-white" : "hover:opacity-70"}`}
+      style={statusFilter !== s ? { color: "var(--muted)", background: "var(--card)", border: "1px solid var(--border)" } : {}}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <AdminHeader
-        title={`Blog Posts — ${posts.length}`}
+        title={`Blog Posts — ${filtered.length}${filtered.length !== posts.length ? ` of ${posts.length}` : ""}`}
         left={
           <button onClick={onBack} className="p-1.5 rounded-lg hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }} title="Dashboard">
             <ArrowLeft size={15} />
@@ -72,29 +90,54 @@ export function PostListScreen({
             <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold gradient-bg text-white hover:opacity-90 transition-opacity">
               <Plus size={13} /> New Post
             </button>
-            <button onClick={onLogout} className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }} title="Sign out">
+            <button onClick={onLogout} className="p-2 rounded-lg hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }} title="Sign out">
               <LogOut size={13} />
             </button>
           </>
         }
       />
-      <div className="max-w-2xl mx-auto px-5 py-10">
+
+      {/* Search + filter bar */}
+      <div className="border-b px-5 py-3 flex flex-wrap items-center gap-3" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+        <div className="relative flex-1 min-w-48">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search posts…"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg border text-sm outline-none focus:border-sky-500 transition-colors"
+            style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
+          />
+        </div>
+        <div className="flex items-center gap-1.5">
+          {filterBtn("all", "All")}
+          {filterBtn("published", "Published")}
+          {filterBtn("draft", "Drafts")}
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-5 py-8">
         {loading ? (
           <Spinner />
         ) : error ? (
           <div className="text-sm text-red-400 p-4 rounded-xl border border-red-500/30 bg-red-500/10">
             {error} <button onClick={load} className="ml-3 underline">Retry</button>
           </div>
-        ) : posts.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>No posts yet.</p>
-            <button onClick={onNew} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm gradient-bg text-white hover:opacity-90 transition-opacity">
-              <Plus size={14} /> Create your first post
-            </button>
+            <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
+              {posts.length === 0 ? "No posts yet." : "No posts match your search."}
+            </p>
+            {posts.length === 0 && (
+              <button onClick={onNew} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm gradient-bg text-white hover:opacity-90 transition-opacity">
+                <Plus size={14} /> Create your first post
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col divide-y rounded-xl border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
-            {posts.map((post) => {
+            {filtered.map((post) => {
               const busy = deleting === post.id;
               return (
                 <div key={post.id} className="flex items-center justify-between px-5 py-4" style={{ borderColor: "var(--border)" }}>

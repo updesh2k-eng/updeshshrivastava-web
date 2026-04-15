@@ -7,7 +7,7 @@ import { listImages, uploadImage } from "./images-api";
 import { REPO } from "./constants";
 import type { GHFile } from "./types";
 
-export function ImagesScreen({ pat, onDone }: { pat: string; onDone: () => void }) {
+export function ImagesScreen({ onDone }: { onDone: () => void }) {
   const [images, setImages] = useState<GHFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -16,11 +16,11 @@ export function ImagesScreen({ pat, onDone }: { pat: string; onDone: () => void 
 
   useEffect(() => {
     (async () => {
-      try { setImages(await listImages(pat)); }
+      try { setImages(await listImages()); }
       catch (e: unknown) { setError(e instanceof Error ? e.message : "Failed to load images"); }
       finally { setLoading(false); }
     })();
-  }, [pat]);
+  }, []);
 
   async function handleUpload(file: File, existing?: GHFile) {
     const name = existing ? existing.name : file.name;
@@ -32,9 +32,9 @@ export function ImagesScreen({ pat, onDone }: { pat: string; onDone: () => void 
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
-      await uploadImage(pat, name, base64, existing?.sha);
+      await uploadImage(name, base64, existing?.sha);
       setSuccess(`${name} uploaded — site will update after Vercel rebuilds.`);
-      setImages(await listImages(pat));
+      setImages(await listImages());
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally { setUploading(null); }

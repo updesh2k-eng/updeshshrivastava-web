@@ -28,15 +28,12 @@ function timeAgo(date: Date): string {
 }
 
 export function PostEditorScreen({
-  pat,
   id: editId,
   onDone,
 }: {
-  pat: string;
   id?: string;
   onDone: () => void;
 }) {
-  void pat;
   const isEdit = !!editId;
   const [dbId, setDbId] = useState<string | null>(null);
   const [form, setForm] = useState<SBForm>(EMPTY_SBFORM);
@@ -45,11 +42,24 @@ export function PostEditorScreen({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
-  // Autosave state
+  // Autosave
   const [dirty, setDirty] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const initialLoadDone = useRef(false);
+
+  // Tag autocomplete
+  const [allTags, setAllTags] = useState<string[]>([]);
+
+  // Load all existing tags for autocomplete
+  useEffect(() => {
+    supabase.from("posts").select("tags").then(({ data }) => {
+      if (!data) return;
+      const set = new Set<string>();
+      data.forEach((row) => (row.tags ?? []).forEach((t: string) => set.add(t)));
+      setAllTags(Array.from(set).sort());
+    });
+  }, []);
 
   // Load post data for edit mode
   useEffect(() => {
@@ -69,7 +79,6 @@ export function PostEditorScreen({
           read_time: data.read_time ?? "",
           content_html: data.content_html ?? "",
         });
-        // Mark load done AFTER setting form so the dirty tracker skips this set
         initialLoadDone.current = true;
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to load post");
@@ -79,13 +88,12 @@ export function PostEditorScreen({
     })();
   }, [isEdit, editId]);
 
-  // setFormDirty: used for all user-initiated field changes
   const setFormDirty = useCallback((updater: SBForm | ((f: SBForm) => SBForm)) => {
     setForm(updater);
     if (initialLoadDone.current) setDirty(true);
   }, []);
 
-  // Autosave: fires 10 seconds after the last change, edit-mode only
+  // Autosave: 10s debounce after last change, edit-mode only
   useEffect(() => {
     if (!isEdit || !dbId || !dirty || saving || autoSaving) return;
     const timer = setTimeout(async () => {
@@ -102,10 +110,7 @@ export function PostEditorScreen({
           read_time: form.read_time || estimateHtmlReadTime(form.content_html),
           content_html: form.content_html,
         }).eq("id", dbId);
-        if (!err) {
-          setDirty(false);
-          setLastSaved(new Date());
-        }
+        if (!err) { setDirty(false); setLastSaved(new Date()); }
       } finally {
         setAutoSaving(false);
       }
@@ -158,6 +163,24 @@ export function PostEditorScreen({
     }
   }
 
+  // Tag autocomplete: suggest matching tags from existing posts
+  function addSuggestedTag(tag: string) {
+    const parts = form.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const partial = form.tags.split(",").pop()?.trim() ?? "";
+    if (partial && !form.tags.endsWith(",")) {
+      parts[parts.length === 0 ? 0 : parts.length - 1] = tag;
+    } else {
+      parts.push(tag);
+    }
+    setFormDirty((f) => ({ ...f, tags: parts.join(", ") }));
+  }
+
+  const currentPartial = form.tags.split(",").pop()?.trim().toLowerCase() ?? "";
+  const existingTagSet = new Set(form.tags.split(",").map((t) => t.trim()).filter(Boolean));
+  const tagSuggestions = currentPartial.length >= 1
+    ? allTags.filter((t) => t.toLowerCase().includes(currentPartial) && !existingTagSet.has(t))
+    : [];
+
   const inputCls = "w-full px-3 py-2.5 rounded-xl border text-sm outline-none focus:border-sky-500 transition-colors";
   const inputStyle = { background: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" };
   const labelCls = "block text-xs font-semibold uppercase tracking-wider mb-1.5";
@@ -171,7 +194,6 @@ export function PostEditorScreen({
       </div>
     );
 
-  // Autosave status label shown in header
   const autosaveLabel = isEdit && dbId
     ? autoSaving
       ? <span className="text-xs" style={{ color: "var(--muted)" }}>Saving…</span>
@@ -195,25 +217,17 @@ export function PostEditorScreen({
           <>
             {autosaveLabel}
             {isEdit && dbId && (
-              <a
-                href={`/writing/preview/${dbId}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a href={`/writing/preview/${dbId}`} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs hover:opacity-60 transition-opacity"
-                style={{ color: "var(--muted)" }}
-              >
+                style={{ color: "var(--muted)" }}>
                 <ExternalLink size={13} /> Preview
               </a>
             )}
             <button onClick={onDone} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }}>
               <X size={13} /> Cancel
             </button>
-            <button
-              form="post-form"
-              type="submit"
-              disabled={saving || saved}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold gradient-bg text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
+            <button form="post-form" type="submit" disabled={saving || saved}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold gradient-bg text-white hover:opacity-90 transition-opacity disabled:opacity-50">
               <Save size={13} />
               {saved ? "Saved!" : saving ? "Saving…" : "Save"}
             </button>
@@ -246,6 +260,17 @@ export function PostEditorScreen({
           <div>
             <label className={labelCls} style={labelStyle}>Tags</label>
             <input type="text" value={form.tags} onChange={field("tags")} placeholder="AI, GDPR, Enterprise" className={inputCls} style={inputStyle} />
+            {tagSuggestions.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {tagSuggestions.slice(0, 6).map((t) => (
+                  <button key={t} type="button" onClick={() => addSuggestedTag(t)}
+                    className="text-xs px-2 py-0.5 rounded-full border hover:border-sky-500/60 hover:text-sky-400 transition-colors"
+                    style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+                    + {t}
+                  </button>
+                ))}
+              </div>
+            )}
             <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Comma-separated</p>
           </div>
           <div>
@@ -254,12 +279,10 @@ export function PostEditorScreen({
           </div>
           <div>
             <label className={labelCls} style={labelStyle}>Status</label>
-            <button
-              type="button"
+            <button type="button"
               onClick={() => setFormDirty((f) => ({ ...f, status: f.status === "published" ? "draft" : "published" }))}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm font-medium flex items-center gap-2 transition-colors ${form.status === "published" ? "border-green-500/40 text-green-400" : "border-orange-500/40 text-orange-400"}`}
-              style={{ background: "var(--card)" }}
-            >
+              style={{ background: "var(--card)" }}>
               {form.status === "published" ? <Eye size={14} /> : <EyeOff size={14} />}
               {form.status === "published" ? "Published" : "Draft"}
             </button>
@@ -273,10 +296,7 @@ export function PostEditorScreen({
 
         <div>
           <label className={labelCls} style={labelStyle}>Content</label>
-          <Editor
-            content={form.content_html}
-            onChange={(html) => setFormDirty((f) => ({ ...f, content_html: html }))}
-          />
+          <Editor content={form.content_html} onChange={(html) => setFormDirty((f) => ({ ...f, content_html: html }))} />
         </div>
       </form>
     </div>

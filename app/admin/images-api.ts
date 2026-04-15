@@ -1,28 +1,27 @@
-import { REPO } from "./constants";
 import type { GHFile } from "./types";
-import { ghFetch, ghWriteError } from "./github";
+import { supabase } from "@/lib/supabase";
 
-export async function listImages(pat: string): Promise<GHFile[]> {
-  const res = await ghFetch(`/repos/${REPO}/contents/public`, pat);
-  if (!res.ok) throw new Error(`GitHub ${res.status}: ${res.statusText}`);
-  const data = await res.json();
-  return (Array.isArray(data) ? data : []).filter((f: GHFile) =>
-    /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(f.name)
-  );
+async function authHeader(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session ? { Authorization: `Bearer ${session.access_token}` } : {};
 }
 
-export async function uploadImage(pat: string, path: string, base64: string, sha?: string) {
-  const res = await ghFetch(`/repos/${REPO}/contents/public/${path}`, pat, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: `chore: update image ${path}`,
-      content: base64,
-      ...(sha ? { sha } : {}),
-    }),
+export async function listImages(): Promise<GHFile[]> {
+  const res = await fetch("/api/github/images", { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load images: ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data as GHFile[];
+}
+
+export async function uploadImage(path: string, base64: string, sha?: string) {
+  const res = await fetch("/api/github/images", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeader()) },
+    body: JSON.stringify({ path, content: base64, sha }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw ghWriteError((err as { message?: string }).message || `GitHub ${res.status}`);
+    throw new Error((err as { error?: string }).error ?? `Upload failed: ${res.status}`);
   }
 }

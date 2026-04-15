@@ -6,7 +6,7 @@ import { AdminHeader, Spinner } from "./ui";
 import { readConfig, writeConfig } from "./config-api";
 import type { NavLink, SiteConfig } from "./types";
 
-export function NavEditorScreen({ pat, onDone }: { pat: string; onDone: () => void }) {
+export function NavEditorScreen({ onDone }: { onDone: () => void }) {
   const [links, setLinks] = useState<NavLink[]>([]);
   const [sha, setSha] = useState("");
   const [fullConfig, setFullConfig] = useState<SiteConfig | null>(null);
@@ -18,7 +18,7 @@ export function NavEditorScreen({ pat, onDone }: { pat: string; onDone: () => vo
   useEffect(() => {
     (async () => {
       try {
-        const { config, sha: s } = await readConfig(pat);
+        const { config, sha: s } = await readConfig();
         setFullConfig(config);
         setLinks(config.nav);
         setSha(s);
@@ -26,7 +26,7 @@ export function NavEditorScreen({ pat, onDone }: { pat: string; onDone: () => vo
         setError(e instanceof Error ? e.message : "Failed to load config");
       } finally { setLoading(false); }
     })();
-  }, [pat]);
+  }, []);
 
   function move(i: number, dir: -1 | 1) {
     setLinks((prev) => {
@@ -42,7 +42,7 @@ export function NavEditorScreen({ pat, onDone }: { pat: string; onDone: () => vo
     if (!fullConfig) return;
     setSaving(true); setError("");
     try {
-      await writeConfig(pat, { ...fullConfig, nav: links }, sha);
+      await writeConfig({ ...fullConfig, nav: links }, sha);
       setSaved(true);
       setTimeout(onDone, 900);
     } catch (e: unknown) {
