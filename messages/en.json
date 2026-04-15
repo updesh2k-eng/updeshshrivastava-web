@@ -1,4 +1,12 @@
 {
+  "nav./": "Home",
+  "nav./about": "About",
+  "nav./writing": "Writing",
+  "nav./work": "Work",
+  "nav./principles": "Principles",
+  "nav./ai-news": "AI News",
+  "nav./contact": "Contact",
+
   "home.selectedWork": "Selected Work",
   "home.allProjects": "All projects",
   "home.recentWriting": "Recent Writing",

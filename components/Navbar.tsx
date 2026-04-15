@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useLang } from "./LangContext";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import clsx from "clsx";
@@ -13,6 +14,7 @@ import type { NavLink } from "@/lib/config";
 export function Navbar({ navLinks }: { navLinks: NavLink[] }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLang();
 
   return (
     <header
@@ -49,7 +51,7 @@ export function Navbar({ navLinks }: { navLinks: NavLink[] }) {
               )}
               style={pathname !== link.href ? { color: "var(--muted)" } : {}}
             >
-              {link.label}
+              {t(`nav.${link.href}`) || link.label}
             </Link>
           ))}
         </nav>
@@ -86,7 +88,7 @@ export function Navbar({ navLinks }: { navLinks: NavLink[] }) {
               )}
               style={pathname !== link.href ? { color: "var(--muted)" } : {}}
             >
-              {link.label}
+              {t(`nav.${link.href}`) || link.label}
             </Link>
           ))}
         </nav>

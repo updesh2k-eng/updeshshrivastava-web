@@ -1,4 +1,12 @@
 {
+  "nav./": "Startseite",
+  "nav./about": "Über mich",
+  "nav./writing": "Blog",
+  "nav./work": "Projekte",
+  "nav./principles": "Prinzipien",
+  "nav./ai-news": "KI-News",
+  "nav./contact": "Kontakt",
+
   "home.selectedWork": "Ausgewählte Projekte",
   "home.allProjects": "Alle Projekte",
   "home.recentWriting": "Aktuelle Beiträge",
