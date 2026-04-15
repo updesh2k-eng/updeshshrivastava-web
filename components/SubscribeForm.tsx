@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { subscribeToNewsletter } from "@/lib/supabase-posts";
 
 export function SubscribeForm() {
@@ -60,6 +61,12 @@ export function SubscribeForm() {
       {status === "error" && (
         <p className="text-xs text-red-400">{errorMsg}</p>
       )}
+      <p className="text-xs leading-relaxed" style={{ color: "var(--muted)", opacity: 0.6 }}>
+        Your email is used only for occasional updates. No spam, unsubscribe any time.{" "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:opacity-70 transition-opacity">
+          Privacy Policy
+        </Link>
+      </p>
     </form>
   );
 }
