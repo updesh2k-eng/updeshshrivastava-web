@@ -7,6 +7,7 @@ import { getAllPosts, getPostBySlug as getMdxPost } from "@/lib/posts";
 import { MDXRemote } from "@/components/MDXRemote";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SocialShare } from "@/components/SocialShare";
+import { ViewCounter } from "./ViewCounter";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -55,6 +56,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      {sbPost && <ViewCounter slug={slug} />}
       <ReadingProgress />
       <div className="max-w-2xl mx-auto px-6 py-20">
         {/* Back link */}

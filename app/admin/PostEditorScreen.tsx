@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Save, X, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Save, X, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { AdminHeader, Spinner } from "./ui";
 import { toSlug } from "./mdx";
@@ -20,6 +20,13 @@ function estimateHtmlReadTime(html: string): string {
   return `${Math.max(1, Math.ceil(words / 200))} min read`;
 }
 
+function timeAgo(date: Date): string {
+  const s = Math.round((Date.now() - date.getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  return `${Math.floor(s / 3600)}h ago`;
+}
+
 export function PostEditorScreen({
   pat,
   id: editId,
@@ -35,9 +42,16 @@ export function PostEditorScreen({
   const [form, setForm] = useState<SBForm>(EMPTY_SBFORM);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
+  // Autosave state
+  const [dirty, setDirty] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const initialLoadDone = useRef(false);
+
+  // Load post data for edit mode
   useEffect(() => {
     if (!isEdit || !editId) return;
     (async () => {
@@ -55,6 +69,8 @@ export function PostEditorScreen({
           read_time: data.read_time ?? "",
           content_html: data.content_html ?? "",
         });
+        // Mark load done AFTER setting form so the dirty tracker skips this set
+        initialLoadDone.current = true;
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to load post");
       } finally {
@@ -63,14 +79,48 @@ export function PostEditorScreen({
     })();
   }, [isEdit, editId]);
 
+  // setFormDirty: used for all user-initiated field changes
+  const setFormDirty = useCallback((updater: SBForm | ((f: SBForm) => SBForm)) => {
+    setForm(updater);
+    if (initialLoadDone.current) setDirty(true);
+  }, []);
+
+  // Autosave: fires 10 seconds after the last change, edit-mode only
+  useEffect(() => {
+    if (!isEdit || !dbId || !dirty || saving || autoSaving) return;
+    const timer = setTimeout(async () => {
+      setAutoSaving(true);
+      try {
+        const tags = form.tags.split(",").map((t) => t.trim()).filter(Boolean);
+        const { error: err } = await supabase.from("posts").update({
+          title: form.title,
+          slug: form.slug,
+          excerpt: form.excerpt,
+          tags,
+          status: form.status,
+          cover_image: form.cover_image || null,
+          read_time: form.read_time || estimateHtmlReadTime(form.content_html),
+          content_html: form.content_html,
+        }).eq("id", dbId);
+        if (!err) {
+          setDirty(false);
+          setLastSaved(new Date());
+        }
+      } finally {
+        setAutoSaving(false);
+      }
+    }, 10_000);
+    return () => clearTimeout(timer);
+  }, [form, dirty, isEdit, dbId, saving, autoSaving]);
+
   function field<K extends keyof SBForm>(key: K) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((f) => ({ ...f, [key]: e.target.value }));
+      setFormDirty((f) => ({ ...f, [key]: e.target.value }));
   }
 
   function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const title = e.target.value;
-    setForm((f) => ({ ...f, title, ...(!isEdit ? { slug: toSlug(title) } : {}) }));
+    setFormDirty((f) => ({ ...f, title, ...(!isEdit ? { slug: toSlug(title) } : {}) }));
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -98,6 +148,8 @@ export function PostEditorScreen({
         const { error: err } = await supabase.from("posts").insert([payload]);
         if (err) throw err;
       }
+      setDirty(false);
+      setLastSaved(new Date());
       setSaved(true);
       setTimeout(onDone, 800);
     } catch (err: unknown) {
@@ -119,6 +171,17 @@ export function PostEditorScreen({
       </div>
     );
 
+  // Autosave status label shown in header
+  const autosaveLabel = isEdit && dbId
+    ? autoSaving
+      ? <span className="text-xs" style={{ color: "var(--muted)" }}>Saving…</span>
+      : dirty
+        ? <span className="text-xs text-orange-400">• Unsaved</span>
+        : lastSaved
+          ? <span className="text-xs" style={{ color: "var(--muted)" }}>Autosaved {timeAgo(lastSaved)}</span>
+          : null
+    : null;
+
   return (
     <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <AdminHeader
@@ -130,6 +193,18 @@ export function PostEditorScreen({
         }
         right={
           <>
+            {autosaveLabel}
+            {isEdit && dbId && (
+              <a
+                href={`/writing/preview/${dbId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs hover:opacity-60 transition-opacity"
+                style={{ color: "var(--muted)" }}
+              >
+                <ExternalLink size={13} /> Preview
+              </a>
+            )}
             <button onClick={onDone} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs hover:opacity-60 transition-opacity" style={{ color: "var(--muted)" }}>
               <X size={13} /> Cancel
             </button>
@@ -181,7 +256,7 @@ export function PostEditorScreen({
             <label className={labelCls} style={labelStyle}>Status</label>
             <button
               type="button"
-              onClick={() => setForm((f) => ({ ...f, status: f.status === "published" ? "draft" : "published" }))}
+              onClick={() => setFormDirty((f) => ({ ...f, status: f.status === "published" ? "draft" : "published" }))}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm font-medium flex items-center gap-2 transition-colors ${form.status === "published" ? "border-green-500/40 text-green-400" : "border-orange-500/40 text-orange-400"}`}
               style={{ background: "var(--card)" }}
             >
@@ -198,7 +273,10 @@ export function PostEditorScreen({
 
         <div>
           <label className={labelCls} style={labelStyle}>Content</label>
-          <Editor content={form.content_html} onChange={(html) => setForm((f) => ({ ...f, content_html: html }))} />
+          <Editor
+            content={form.content_html}
+            onChange={(html) => setFormDirty((f) => ({ ...f, content_html: html }))}
+          />
         </div>
       </form>
     </div>

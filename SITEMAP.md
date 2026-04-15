@@ -25,6 +25,9 @@ Read this first. Find the one file you need, open only that file.
 | `/work` | `app/work/page.tsx` |
 | `/writing` | `app/writing/page.tsx` |
 | `/writing/[slug]` | `app/writing/[slug]/page.tsx` |
+| `/writing/[slug]` view counter (client) | `app/writing/[slug]/ViewCounter.tsx` |
+| `/writing/preview/[id]` Draft preview | `app/writing/preview/[id]/page.tsx` |
+| `/api/views` POST — increment view count | `app/api/views/route.ts` |
 | `/principles` | `app/principles/page.tsx` |
 | `/contact` | `app/contact/page.tsx` |
 | `/admin` view router | `app/admin/page.tsx` |
