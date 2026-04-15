@@ -8,7 +8,7 @@ import YoutubeExt from "@tiptap/extension-youtube";
 import Placeholder from "@tiptap/extension-placeholder";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
@@ -24,6 +24,7 @@ interface EditorProps {
 
 export default function Editor({ content, onChange }: EditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -52,13 +53,14 @@ export default function Editor({ content, onChange }: EditorProps) {
   const uploadImage = useCallback(
     async (file: File) => {
       if (!editor) return;
+      setUploadError("");
       const ext = file.name.split(".").pop() ?? "jpg";
       const path = `posts/${Date.now()}.${ext}`;
       const { error } = await supabase.storage
         .from("post-media")
         .upload(path, file, { upsert: true });
       if (error) {
-        alert("Image upload failed: " + error.message);
+        setUploadError(`Image upload failed: ${error.message}`);
         return;
       }
       const { data } = supabase.storage.from("post-media").getPublicUrl(path);
@@ -149,10 +151,18 @@ export default function Editor({ content, onChange }: EditorProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept="image/*"
         className="hidden"
         onChange={handleImageFile}
       />
+
+      {uploadError && (
+        <div className="px-4 py-2 text-xs text-red-400 border-b flex items-center justify-between gap-2"
+          style={{ borderColor: "var(--border)", background: "rgba(239,68,68,0.06)" }}>
+          <span>{uploadError}</span>
+          <button type="button" onClick={() => setUploadError("")} className="opacity-60 hover:opacity-100">✕</button>
+        </div>
+      )}
 
       <EditorContent editor={editor} />
     </div>

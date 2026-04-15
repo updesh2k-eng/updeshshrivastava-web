@@ -158,7 +158,13 @@ export function PostEditorScreen({
       setSaved(true);
       setTimeout(onDone, 800);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Save failed";
+      setError(msg);
       setSaving(false);
     }
   }
