@@ -74,10 +74,10 @@ export default async function PostPage({ params }: Props) {
 
   if (!sbPost && !mdxPost) notFound();
 
-  const title = sbPost?.title ?? mdxPost!.title;
-  const date = sbPost ? (sbPost.published_at ?? sbPost.created_at) : mdxPost!.date;
-  const tags = sbPost?.tags ?? mdxPost!.tags;
-  const readTime = sbPost?.read_time ?? mdxPost!.readTime;
+  const title    = sbPost?.title                       ?? mdxPost?.title    ?? "";
+  const date     = sbPost ? (sbPost.published_at ?? sbPost.created_at) : (mdxPost?.date ?? new Date().toISOString());
+  const tags     = sbPost ? (sbPost.tags     ?? [])             : (mdxPost?.tags     ?? []);
+  const readTime = sbPost ? (sbPost.read_time ?? "1 min read")  : (mdxPost?.readTime ?? "1 min read");
   const postUrl = `${SITE_URL}/writing/${slug}`;
 
   return (
