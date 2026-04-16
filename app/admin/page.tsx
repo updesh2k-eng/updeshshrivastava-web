@@ -11,6 +11,7 @@ import { NavEditorScreen } from "./NavEditorScreen";
 import { HomeEditorScreen } from "./HomeEditorScreen";
 import { ImagesScreen } from "./ImagesScreen";
 import { MemoryScreen } from "./MemoryScreen";
+import { CommentsScreen } from "./CommentsScreen";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -48,6 +49,7 @@ export default function AdminPage() {
       else if (dest === "home") setView({ name: "home" });
       else if (dest === "images") setView({ name: "images" });
       else if (dest === "memory") setView({ name: "memory" });
+      else if (dest === "comments") setView({ name: "comments" });
     }} />;
 
   if (view.name === "posts")
@@ -73,4 +75,7 @@ export default function AdminPage() {
 
   if (view.name === "memory")
     return <MemoryScreen onBack={() => setView({ name: "dashboard" })} />;
+
+  if (view.name === "comments")
+    return <CommentsScreen onBack={() => setView({ name: "dashboard" })} />;
 }

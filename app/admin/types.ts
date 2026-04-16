@@ -64,4 +64,5 @@ export type View =
   | { name: "nav" }
   | { name: "home" }
   | { name: "images" }
-  | { name: "memory" };
+  | { name: "memory" }
+  | { name: "comments" };

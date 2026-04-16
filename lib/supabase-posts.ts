@@ -106,6 +106,79 @@ export async function submitContact(name: string, email: string, message: string
   if (error) throw error;
 }
 
+// ── Post comments ─────────────────────────────────────────────────────────────
+// Run this SQL once in Supabase SQL editor to create the table:
+//
+//   create table if not exists post_comments (
+//     id          uuid primary key default gen_random_uuid(),
+//     post_slug   text not null,
+//     name        text not null,
+//     email       text not null,
+//     content     text not null,
+//     approved    boolean not null default false,
+//     created_at  timestamptz not null default now()
+//   );
+//   create index on post_comments (post_slug, approved, created_at desc);
+
+export interface PostComment {
+  id: string;
+  post_slug: string;
+  name: string;
+  email: string;
+  content: string;
+  approved: boolean;
+  created_at: string;
+}
+
+export async function submitPostComment(
+  post_slug: string,
+  name: string,
+  email: string,
+  content: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("post_comments")
+    .insert([{ post_slug, name, email, content }]);
+  if (error) throw new Error(error.message);
+}
+
+export async function getPostComments(post_slug: string): Promise<PostComment[]> {
+  const { data, error } = await supabase
+    .from("post_comments")
+    .select("id, post_slug, name, content, created_at")
+    .eq("post_slug", post_slug)
+    .eq("approved", true)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PostComment[];
+}
+
+// Admin: all comments for moderation
+export async function getAllCommentsAdmin(): Promise<PostComment[]> {
+  const { data, error } = await supabase
+    .from("post_comments")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PostComment[];
+}
+
+export async function approveComment(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("post_comments")
+    .update({ approved: true })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteComment(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("post_comments")
+    .delete()
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
 export async function subscribeToNewsletter(email: string): Promise<void> {
   const { error } = await supabase
     .from("subscribers")

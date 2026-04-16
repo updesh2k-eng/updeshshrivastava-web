@@ -16,7 +16,8 @@ export function DashboardScreen({
     { id: "nav",    label: "Navigation",  desc: "Rename & reorder menu links",             icon: "🔗" },
     { id: "home",   label: "Home Page",   desc: "Hero text, proof points, social",         icon: "🏠" },
     { id: "images", label: "Images",      desc: "Upload & replace site images",            icon: "🖼️" },
-    { id: "memory", label: "AI Memory",   desc: "Browse claude-mem sessions & context",   icon: "🧠" },
+    { id: "memory",    label: "AI Memory",   desc: "Browse claude-mem sessions & context",  icon: "🧠" },
+    { id: "comments",  label: "Comments",    desc: "Approve & moderate post comments",       icon: "💬" },
   ];
 
   return (
