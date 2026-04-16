@@ -63,4 +63,5 @@ export type View =
   | { name: "edit"; id: string }
   | { name: "nav" }
   | { name: "home" }
-  | { name: "images" };
+  | { name: "images" }
+  | { name: "comments" };

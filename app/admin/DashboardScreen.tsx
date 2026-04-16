@@ -12,10 +12,11 @@ export function DashboardScreen({
   onNav: (dest: string) => void;
 }) {
   const cards = [
-    { id: "posts",  label: "Blog Posts",  desc: "Create, edit, delete posts",      icon: "✍️" },
-    { id: "nav",    label: "Navigation",  desc: "Rename & reorder menu links",      icon: "🔗" },
-    { id: "home",   label: "Home Page",   desc: "Hero text, proof points, social",  icon: "🏠" },
-    { id: "images", label: "Images",      desc: "Upload & replace site images",     icon: "🖼️" },
+    { id: "posts",    label: "Blog Posts",  desc: "Create, edit, delete posts",           icon: "✍️" },
+    { id: "comments", label: "Comments",    desc: "Approve, reject, delete comments",     icon: "💬" },
+    { id: "nav",      label: "Navigation",  desc: "Rename & reorder menu links",          icon: "🔗" },
+    { id: "home",     label: "Home Page",   desc: "Hero text, proof points, social",      icon: "🏠" },
+    { id: "images",   label: "Images",      desc: "Upload & replace site images",         icon: "🖼️" },
   ];
 
   return (

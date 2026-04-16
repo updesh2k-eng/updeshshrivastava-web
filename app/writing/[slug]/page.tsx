@@ -8,6 +8,9 @@ import { MDXRemote } from "@/components/MDXRemote";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SocialShare } from "@/components/SocialShare";
 import { ViewCounter } from "./ViewCounter";
+import { CommentForm } from "@/components/CommentForm";
+import { CommentList } from "@/components/CommentList";
+import { getT, getLocale } from "@/lib/i18n";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -69,16 +72,21 @@ export default async function PostPage({ params }: Props) {
   const { slug } = await params;
 
   // Try Supabase first, fall back to MDX
-  const sbPost = await getPublishedPostBySlug(slug).catch(() => null);
+  const [sbPost, t, locale] = await Promise.all([
+    getPublishedPostBySlug(slug).catch(() => null),
+    getT(),
+    getLocale(),
+  ]);
   const mdxPost = sbPost ? null : getMdxPost(slug);
 
   if (!sbPost && !mdxPost) notFound();
 
-  const title = sbPost?.title ?? mdxPost!.title;
-  const date = sbPost ? (sbPost.published_at ?? sbPost.created_at) : mdxPost!.date;
-  const tags = sbPost?.tags ?? mdxPost!.tags;
-  const readTime = sbPost?.read_time ?? mdxPost!.readTime;
+  const title    = sbPost?.title                       ?? mdxPost?.title    ?? "";
+  const date     = sbPost ? (sbPost.published_at ?? sbPost.created_at) : (mdxPost?.date ?? new Date().toISOString());
+  const tags     = sbPost ? (sbPost.tags     ?? [])             : (mdxPost?.tags     ?? []);
+  const readTime = sbPost ? (sbPost.read_time ?? "1 min read")  : (mdxPost?.readTime ?? "1 min read");
   const postUrl = `${SITE_URL}/writing/${slug}`;
+  const dateLocale = locale === "de" ? "de-DE" : "en-US";
 
   return (
     <>
@@ -91,7 +99,7 @@ export default async function PostPage({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm mb-10 hover:opacity-60 transition-opacity"
           style={{ color: "var(--muted)" }}
         >
-          <ArrowLeft size={14} /> Back to Writing
+          <ArrowLeft size={14} /> {t("writing.backToWriting")}
         </Link>
 
         {/* Cover image */}
@@ -122,7 +130,7 @@ export default async function PostPage({ params }: Props) {
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: "var(--muted)" }}>
             <time>
-              {new Date(date).toLocaleDateString("en-US", {
+              {new Date(date).toLocaleDateString(dateLocale, {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -133,7 +141,7 @@ export default async function PostPage({ params }: Props) {
             {sbPost && (
               <>
                 <span>·</span>
-                <span>{sbPost.views ?? 0} views</span>
+                <span>{sbPost.views ?? 0} {t("writing.views")}</span>
               </>
             )}
           </div>
@@ -157,13 +165,43 @@ export default async function PostPage({ params }: Props) {
           <SocialShare title={title} url={postUrl} />
         </div>
 
+        {/* Comments */}
+        <div className="mt-6 flex flex-col gap-10">
+          <CommentList
+            postSlug={slug}
+            labels={{
+              title: locale === "de" ? "Kommentare" : "Comments",
+              empty: locale === "de"
+                ? "Noch keine Kommentare. Teilen Sie Ihre Gedanken als Erster."
+                : "No comments yet. Be the first to share your thoughts.",
+            }}
+          />
+          <CommentForm
+            postSlug={slug}
+            labels={{
+              title: locale === "de" ? "Kommentar hinterlassen" : "Leave a comment",
+              name: locale === "de" ? "Name" : "Name",
+              email: locale === "de" ? "E-Mail" : "Email",
+              comment: locale === "de" ? "Kommentar" : "Comment",
+              submit: locale === "de" ? "Absenden" : "Submit",
+              successTitle: locale === "de" ? "Kommentar eingereicht" : "Comment submitted",
+              successBody: locale === "de"
+                ? "Ihr Kommentar wird moderiert und erscheint nach der Freigabe."
+                : "Your comment is awaiting moderation. It will appear once approved.",
+              error: locale === "de" ? "Fehler beim Senden. Bitte erneut versuchen." : "Failed to submit. Please try again.",
+            }}
+          />
+        </div>
+
+        <div className="w-full h-px mt-16 mb-10" style={{ background: "var(--border)" }} />
+
         {/* Footer nav */}
         <Link
           href="/writing"
           className="inline-flex items-center gap-2 text-sm hover:opacity-60 transition-opacity"
           style={{ color: "var(--muted)" }}
         >
-          <ArrowLeft size={14} /> Back to all posts
+          <ArrowLeft size={14} /> {t("writing.backToAllPosts")}
         </Link>
       </div>
     </>
