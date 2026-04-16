@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { getLocale } from "@/lib/i18n";
+import { LinkedInBadge } from "@/components/LinkedInBadge";
 
 export const metadata: Metadata = {
   title: "About",
@@ -107,7 +109,9 @@ const education = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const locale = await getLocale();
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-20">
 
@@ -229,6 +233,11 @@ export default function AboutPage() {
           that makes AI automation genuinely different here than anywhere else in the world. This
           is not a footnote. It is the entire point of what I build.
         </p>
+      </section>
+
+      {/* LinkedIn Profile Badge */}
+      <section className="mb-16">
+        <LinkedInBadge locale={locale} />
       </section>
 
       {/* CTA */}

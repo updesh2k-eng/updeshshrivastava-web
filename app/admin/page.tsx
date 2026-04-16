@@ -11,6 +11,7 @@ import { NavEditorScreen } from "./NavEditorScreen";
 import { HomeEditorScreen } from "./HomeEditorScreen";
 import { ImagesScreen } from "./ImagesScreen";
 import { CommentsScreen } from "./CommentsScreen";
+import { LinkedInScreen } from "./LinkedInScreen";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -48,6 +49,7 @@ export default function AdminPage() {
       else if (dest === "home") setView({ name: "home" });
       else if (dest === "images") setView({ name: "images" });
       else if (dest === "comments") setView({ name: "comments" });
+      else if (dest === "linkedin") setView({ name: "linkedin" });
     }} />;
 
   if (view.name === "posts")
@@ -73,4 +75,7 @@ export default function AdminPage() {
 
   if (view.name === "comments")
     return <CommentsScreen onDone={() => setView({ name: "dashboard" })} />;
+
+  if (view.name === "linkedin")
+    return <LinkedInScreen onDone={() => setView({ name: "dashboard" })} />;
 }

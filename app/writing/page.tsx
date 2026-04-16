@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedPosts } from "@/lib/supabase-posts";
 import { getAllPosts } from "@/lib/posts";
-import { getT } from "@/lib/i18n";
+import { getT, getLocale } from "@/lib/i18n";
+import { LinkedInPosts } from "@/components/LinkedInPosts";
 
 export const metadata: Metadata = {
   title: "Writing",
@@ -23,10 +24,11 @@ type ListPost = {
 };
 
 export default async function WritingPage() {
-  const [sbPosts, mdxPosts, t] = await Promise.all([
+  const [sbPosts, mdxPosts, t, locale] = await Promise.all([
     getPublishedPosts().catch(() => []),
     Promise.resolve(getAllPosts()),
     getT(),
+    getLocale(),
   ]);
 
   const supabaseSlugs = new Set(sbPosts.map((p) => p.slug));
@@ -134,6 +136,9 @@ export default async function WritingPage() {
           <div className="border-t" style={{ borderColor: "var(--border)" }} />
         </div>
       )}
+
+      {/* LinkedIn posts — hidden when table is empty */}
+      <LinkedInPosts locale={locale} />
     </div>
   );
 }
