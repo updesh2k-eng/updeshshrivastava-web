@@ -10,6 +10,7 @@ import { PostEditorScreen } from "./PostEditorScreen";
 import { NavEditorScreen } from "./NavEditorScreen";
 import { HomeEditorScreen } from "./HomeEditorScreen";
 import { ImagesScreen } from "./ImagesScreen";
+import { MemoryScreen } from "./MemoryScreen";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -46,6 +47,7 @@ export default function AdminPage() {
       else if (dest === "nav") setView({ name: "nav" });
       else if (dest === "home") setView({ name: "home" });
       else if (dest === "images") setView({ name: "images" });
+      else if (dest === "memory") setView({ name: "memory" });
     }} />;
 
   if (view.name === "posts")
@@ -68,4 +70,7 @@ export default function AdminPage() {
 
   if (view.name === "images")
     return <ImagesScreen onDone={() => setView({ name: "dashboard" })} />;
+
+  if (view.name === "memory")
+    return <MemoryScreen onBack={() => setView({ name: "dashboard" })} />;
 }
