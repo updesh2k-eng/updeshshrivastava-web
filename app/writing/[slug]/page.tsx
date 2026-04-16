@@ -9,7 +9,6 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { SocialShare } from "@/components/SocialShare";
 import { ViewCounter } from "./ViewCounter";
 import { getT, getLocale } from "@/lib/i18n";
-import { CommentSection } from "@/components/CommentSection";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -164,13 +163,10 @@ export default async function PostPage({ params }: Props) {
           <SocialShare title={title} url={postUrl} />
         </div>
 
-        {/* Comments */}
-        <CommentSection slug={slug} />
-
         {/* Footer nav */}
         <Link
           href="/writing"
-          className="inline-flex items-center gap-2 text-sm mt-16 hover:opacity-60 transition-opacity"
+          className="inline-flex items-center gap-2 text-sm hover:opacity-60 transition-opacity"
           style={{ color: "var(--muted)" }}
         >
           <ArrowLeft size={14} /> {t("writing.backToAllPosts")}
