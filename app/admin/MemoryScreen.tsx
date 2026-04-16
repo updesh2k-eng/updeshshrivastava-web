@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, Search, RefreshCw, Brain, FileText, Layers, Zap } from "lucide-react";
+import { ArrowLeft, Search, RefreshCw, Brain, FileText, Layers, Zap, Play } from "lucide-react";
 import { AdminHeader, Spinner } from "./ui";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -121,6 +121,8 @@ export function MemoryScreen({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workerUp, setWorkerUp] = useState<boolean | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   // Check worker health
   useEffect(() => {
@@ -128,6 +130,28 @@ export function MemoryScreen({ onBack }: { onBack: () => void }) {
       .then(() => setWorkerUp(true))
       .catch(() => setWorkerUp(false));
   }, []);
+
+  async function handleStartWorker() {
+    setStarting(true);
+    setStartError(null);
+    try {
+      const res = await fetch("/api/claude-mem-start", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        setWorkerUp(true);
+        // Reload stats for the now-active tab
+        if (tab === "stats") loadStats();
+        else if (tab === "observations") loadObservations();
+        else if (tab === "summaries") loadSummaries();
+      } else {
+        setStartError(data.error ?? "Failed to start worker.");
+      }
+    } catch {
+      setStartError("Failed to start worker.");
+    } finally {
+      setStarting(false);
+    }
+  }
 
   const loadStats = useCallback(async () => {
     setLoading(true);
@@ -246,9 +270,23 @@ export function MemoryScreen({ onBack }: { onBack: () => void }) {
 
       {/* Worker offline banner */}
       {workerUp === false && (
-        <div className="mx-5 mt-4 p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-sm text-red-400">
-          claude-mem worker is not running. Start it with:{" "}
-          <code className="font-mono bg-red-500/10 px-1 rounded">npx claude-mem start</code>
+        <div className="mx-5 mt-4 p-4 rounded-xl border border-red-500/30 bg-red-500/10 flex items-center justify-between gap-4">
+          <p className="text-sm text-red-400">
+            claude-mem worker is not running.
+          </p>
+          <button
+            onClick={handleStartWorker}
+            disabled={starting}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors disabled:opacity-50"
+          >
+            <Play size={11} />
+            {starting ? "Starting…" : "Start Worker"}
+          </button>
+        </div>
+      )}
+      {startError && (
+        <div className="mx-5 mt-2 p-3 rounded-xl border border-red-500/30 bg-red-500/10 text-sm text-red-400">
+          {startError}
         </div>
       )}
 
