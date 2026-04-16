@@ -1,34 +1,33 @@
 // Starts the claude-mem worker in the background.
 // Only works in local dev — on production the worker cannot run.
 import { NextResponse } from "next/server";
-import { spawn } from "child_process";
-import { existsSync, readdirSync } from "fs";
+import { spawn, execSync } from "child_process";
+import { existsSync } from "fs";
 import { join } from "path";
 import os from "os";
 
-const KNOWN_PLUGIN_BASES = [
-  "/root/.claude/plugins/cache/thedotmack/claude-mem",
-  "/home/user/.claude/plugins/cache/thedotmack/claude-mem",
-];
+function shellExists(p: string): boolean {
+  try { execSync(`test -e ${JSON.stringify(p)}`); return true; } catch { return false; }
+}
+
+function shellList(dir: string): string[] {
+  try { return execSync(`ls ${JSON.stringify(dir)} 2>/dev/null`, { encoding: "utf-8" }).trim().split("\n").filter(Boolean); } catch { return []; }
+}
 
 function findPluginRoot(): { root: string | null; diag: string } {
-  const homeDir = os.homedir();
-  const dynamicBase = join(homeDir, ".claude/plugins/cache/thedotmack/claude-mem");
-  const bases = [dynamicBase, ...KNOWN_PLUGIN_BASES.filter((b) => b !== dynamicBase)];
+  const homes = [os.homedir(), process.env.HOME ?? "", "/root", "/home/user"].filter((h, i, a) => h && a.indexOf(h) === i);
   const tried: string[] = [];
 
-  for (const base of bases) {
+  for (const home of homes) {
+    const base = `${home}/.claude/plugins/cache/thedotmack/claude-mem`;
     tried.push(base);
-    if (!existsSync(base)) continue;
-    const versions = readdirSync(base).sort().reverse();
+    const versions = shellList(base).sort().reverse();
     for (const v of versions) {
-      const p = join(base, v);
-      if (existsSync(join(p, "scripts/bun-runner.js"))) {
-        return { root: p, diag: `found at ${p}` };
-      }
+      const p = `${base}/${v}`;
+      if (shellExists(`${p}/scripts/bun-runner.js`)) return { root: p, diag: `found at ${p}` };
     }
   }
-  return { root: null, diag: `homedir=${homeDir}; tried: ${tried.join(", ")}` };
+  return { root: null, diag: `homes tried: ${homes.join(", ")}; bases: ${tried.join(", ")}` };
 }
 
 export async function POST() {
