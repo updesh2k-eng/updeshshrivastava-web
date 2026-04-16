@@ -150,6 +150,10 @@ export function MemoryScreen({ onBack }: { onBack: () => void }) {
       setStartError("Failed to start worker.");
     } finally {
       setStarting(false);
+      // Re-check health regardless — worker may have started even if we timed out
+      cm<{ status: string }>("health")
+        .then(() => { setWorkerUp(true); setStartError(null); })
+        .catch(() => {});
     }
   }
 
