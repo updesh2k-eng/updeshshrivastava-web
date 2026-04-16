@@ -6,16 +6,29 @@ import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import os from "os";
 
-function findPluginRoot(): string | null {
-  const base = join(os.homedir(), ".claude/plugins/cache/thedotmack/claude-mem");
-  if (!existsSync(base)) return null;
-  // Pick highest semver directory
-  const versions = readdirSync(base).sort().reverse();
-  for (const v of versions) {
-    const p = join(base, v);
-    if (existsSync(join(p, "scripts/bun-runner.js"))) return p;
+const KNOWN_PLUGIN_BASES = [
+  "/root/.claude/plugins/cache/thedotmack/claude-mem",
+  "/home/user/.claude/plugins/cache/thedotmack/claude-mem",
+];
+
+function findPluginRoot(): { root: string | null; diag: string } {
+  const homeDir = os.homedir();
+  const dynamicBase = join(homeDir, ".claude/plugins/cache/thedotmack/claude-mem");
+  const bases = [dynamicBase, ...KNOWN_PLUGIN_BASES.filter((b) => b !== dynamicBase)];
+  const tried: string[] = [];
+
+  for (const base of bases) {
+    tried.push(base);
+    if (!existsSync(base)) continue;
+    const versions = readdirSync(base).sort().reverse();
+    for (const v of versions) {
+      const p = join(base, v);
+      if (existsSync(join(p, "scripts/bun-runner.js"))) {
+        return { root: p, diag: `found at ${p}` };
+      }
+    }
   }
-  return null;
+  return { root: null, diag: `homedir=${homeDir}; tried: ${tried.join(", ")}` };
 }
 
 export async function POST() {
@@ -26,9 +39,12 @@ export async function POST() {
       if (already.ok) return NextResponse.json({ ok: true });
     } catch { /* not running */ }
 
-    const pluginRoot = findPluginRoot();
+    const { root: pluginRoot, diag } = findPluginRoot();
     if (!pluginRoot) {
-      return NextResponse.json({ ok: false, error: "claude-mem plugin not found. Run: npx claude-mem install" }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: `claude-mem plugin not found (${diag}). Run: npx claude-mem install` },
+        { status: 500 }
+      );
     }
 
     const bunRunner  = join(pluginRoot, "scripts/bun-runner.js");
