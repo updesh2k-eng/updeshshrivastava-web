@@ -2,7 +2,7 @@
 // Only works in local dev — on production the worker cannot run.
 import { NextResponse } from "next/server";
 import { spawn } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import os from "os";
 
@@ -10,7 +10,6 @@ function findPluginRoot(): string | null {
   const base = join(os.homedir(), ".claude/plugins/cache/thedotmack/claude-mem");
   if (!existsSync(base)) return null;
   // Pick highest semver directory
-  const { readdirSync } = require("fs");
   const versions = readdirSync(base).sort().reverse();
   for (const v of versions) {
     const p = join(base, v);
